@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import html2canvas from 'html2canvas'
 import './InputInterface.css'
+import { generateMockDream } from '../utils/mockDreamGenerator'
 
 // 简单的 SVG 图标组件
 const MicIcon = () => (
@@ -10,6 +11,14 @@ const MicIcon = () => (
     <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
     <line x1="12" y1="19" x2="12" y2="23"></line>
     <line x1="8" y1="23" x2="16" y2="23"></line>
+  </svg>
+)
+
+const RefreshIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M23 4v6h-6"></path>
+    <path d="M1 20v-6h6"></path>
+    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
   </svg>
 )
 
@@ -58,34 +67,28 @@ export default function InputInterface({ appState, setAppState, onDreamGenerated
     }
   }
 
+  const generateDream = async (text) => {
+    setAppState('processing')
+    try {
+      const data = await generateMockDream(text)
+      setLocalDreamData(data)
+      onDreamGenerated(data)
+    } catch (error) {
+      console.error("Dream generation failed:", error)
+      setAppState('input')
+    }
+  }
+
   const handleSubmit = (e) => {
     e.preventDefault()
     if (!input.trim()) return
+    generateDream(input)
+  }
 
-    setAppState('processing')
-
-    // 模拟 AI 生成过程
-    setTimeout(async () => {
-      const rawUrl = "https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=1000&auto=format&fit=crop";
-
-      let imageUrl = rawUrl;
-      try {
-        // Pre-fetch image to ensure it's loaded and handle CORS for html2canvas
-        const response = await fetch(rawUrl);
-        const blob = await response.blob();
-        imageUrl = URL.createObjectURL(blob);
-      } catch (e) {
-        console.warn("Failed to pre-fetch image, falling back to direct URL", e);
-      }
-
-      const data = {
-        imageUrl: imageUrl,
-        keywords: ["Freedom", "Clarity", "Ascension"],
-        analysis: "This dream suggests a desire to transcend current limitations and view your life from a higher perspective."
-      }
-      setLocalDreamData(data)
-      onDreamGenerated(data)
-    }, 2000)
+  const handleRegenerate = () => {
+    if (localDreamData?.inputText) {
+      generateDream(localDreamData.inputText)
+    }
   }
 
   return (
@@ -190,16 +193,30 @@ export default function InputInterface({ appState, setAppState, onDreamGenerated
                 ))}
               </div>
               <p className="analysis-text">{localDreamData.analysis}</p>
+              
+              <div className="action-buttons">
+                <motion.button
+                    className="secondary-btn"
+                    onClick={handleRegenerate}
+                    whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.1)" }}
+                    whileTap={{ scale: 0.95 }}
+                    title="Regenerate"
+                >
+                    <RefreshIcon />
+                    Regenerate
+                </motion.button>
+
+                <motion.button
+                    className="submit-btn primary-action"
+                    onClick={handleEnter}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                >
+                    Enter Dreamscape
+                </motion.button>
+              </div>
             </div>
 
-            <motion.button
-              className="submit-btn primary-action"
-              onClick={handleEnter}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              Enter Dreamscape
-            </motion.button>
           </motion.div>
         )}
 

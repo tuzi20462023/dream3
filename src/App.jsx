@@ -4,11 +4,13 @@ import { Suspense, useState } from 'react'
 import Scene from './Scene'
 import InputInterface from './components/InputInterface'
 import GalleryScene from './GalleryScene'
+import { dreams as initialDreams } from './data/dreams'
 
 function App() {
   const [appState, setAppState] = useState('input') // input, processing, preview, immersed, gallery
   const [dreamData, setDreamData] = useState(null)
   const [transitionData, setTransitionData] = useState(null)
+  const [galleryDreams, setGalleryDreams] = useState(initialDreams)
 
   const handleDreamGenerated = (data) => {
     setDreamData(data)
@@ -18,6 +20,20 @@ function App() {
   const handleEnterDream = (data) => {
     setTransitionData(data)
     setAppState('immersed')
+
+    // Add to gallery if we have valid dream data
+    if (dreamData) {
+      const newDream = {
+        id: Date.now(),
+        title: dreamData.keywords[0] || "Untitled Dream",
+        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        imageUrl: dreamData.imageUrl,
+        description: dreamData.analysis, // Save analysis as description
+        keywords: dreamData.keywords,
+        color: '#ffffff' // Default or random color
+      }
+      setGalleryDreams(prev => [newDream, ...prev])
+    }
   }
 
   const handleTransitionComplete = () => {
@@ -25,7 +41,7 @@ function App() {
   }
 
   if (appState === 'gallery') {
-    return <GalleryScene onBack={() => setAppState('input')} />
+    return <GalleryScene onBack={() => setAppState('input')} dreams={galleryDreams} />
   }
 
   return (
@@ -59,9 +75,9 @@ function App() {
       >
         <color attach="background" args={['#000000']} />
         <Suspense fallback={null}>
-          <Scene 
-            appState={appState} 
-            dreamData={dreamData} 
+          <Scene
+            appState={appState}
+            dreamData={dreamData}
             transitionData={transitionData}
             onTransitionComplete={handleTransitionComplete}
           />
