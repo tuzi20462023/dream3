@@ -8,47 +8,59 @@
   height: 100vh;
   display: flex;
   justify-content: center;
-  align-items: center; /* 绝对垂直居中 */
+  align-items: center;
+  /* 绝对垂直居中 */
   pointer-events: none;
-  z-index: 100; /* 确保在最上层 */
-  background: radial-gradient(circle at center, rgba(0,0,0,0.2) 0%, transparent 70%); /* 轻微暗角增强对比 */
+  z-index: 100;
+  /* 确保在最上层 */
+  background: radial-gradient(circle at center, rgba(0, 0, 0, 0.1) 0%, transparent 70%);
+  /* 轻微暗角增强对比 */
+  /* backdrop-filter removed for HD clarity */
   transition: opacity 1.2s cubic-bezier(0.19, 1, 0.22, 1);
 }
 
 .input-overlay.hidden {
   opacity: 0;
   pointer-events: none;
+  backdrop-filter: blur(0px);
+  -webkit-backdrop-filter: blur(0px);
 }
 
 .glass-card {
   pointer-events: auto;
   width: 100%;
-  max-width: 520px; /* 稍微调窄一点，更精致 */
+  max-width: 520px;
+  /* 稍微调窄一点，更精致 */
   padding: 3.5rem 3rem;
-  
+
   /* 高级磨砂玻璃效果 */
-  background: rgba(25, 25, 25, 0.4); /* 稍微深一点的底色 */
+  background: rgba(25, 25, 25, 0.4);
+  /* 稍微深一点的底色 */
   backdrop-filter: blur(40px) saturate(140%);
   -webkit-backdrop-filter: blur(40px) saturate(140%);
-  
+
   border-radius: 32px;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 
-    0 40px 80px -20px rgba(0, 0, 0, 0.8), /* 深度阴影 */
-    inset 0 1px 1px rgba(255, 255, 255, 0.15), /* 顶部高光 */
-    inset 0 -1px 1px rgba(0, 0, 0, 0.3); /* 底部阴影 */
-  
+  box-shadow:
+    0 40px 80px -20px rgba(0, 0, 0, 0.8),
+    /* 深度阴影 */
+    inset 0 1px 1px rgba(255, 255, 255, 0.15),
+    /* 顶部高光 */
+    inset 0 -1px 1px rgba(0, 0, 0, 0.3);
+  /* 底部阴影 */
+
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 2.5rem;
-  
+
   transform-origin: center center;
 }
 
 /* Preview Mode Specifics */
 .glass-card.preview-mode {
-  padding: 0 0 3.5rem 0; /* Top/Left/Right 0, Bottom 3.5rem */
+  padding: 0 0 3.5rem 0;
+  /* Top/Left/Right 0, Bottom 3.5rem */
   gap: 0;
   overflow: hidden;
   background: rgba(10, 10, 10, 0.6);
@@ -73,19 +85,20 @@
 
 /* Slight zoom on hover */
 .glass-card:hover .preview-image {
-  transform: scale(1.05); 
+  transform: scale(1.05);
 }
 
 /* Content Section */
 .preview-content {
-  padding: 3rem 3rem 4.5rem 3rem; /* Increased bottom padding significantly */
+  padding: 3rem 3rem 4.5rem 3rem;
+  /* Increased bottom padding significantly */
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 1.5rem;
   width: 100%;
   box-sizing: border-box;
-  background: linear-gradient(to bottom, rgba(255,255,255,0.02), transparent);
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.02), transparent);
 }
 
 /* Typography */
@@ -123,7 +136,8 @@
   border: none;
   border-bottom: 1px solid rgba(255, 255, 255, 0.15);
   padding: 1rem 0;
-  font-family: 'Cormorant Garamond', serif; /* Change input font to serif for elegance */
+  font-family: 'Cormorant Garamond', serif;
+  /* Change input font to serif for elegance */
   font-size: 1.5rem;
   color: white;
   outline: none;
@@ -142,7 +156,8 @@
 
 .dream-input:focus {
   border-bottom-color: rgba(255, 255, 255, 0.6);
-  padding-bottom: 1.1rem; /* Slight lift */
+  padding-bottom: 1.1rem;
+  /* Slight lift */
 }
 
 /* Controls & Buttons */
@@ -173,6 +188,26 @@
   border-color: rgba(255, 255, 255, 0.3);
   transform: translateY(-2px);
   color: white;
+}
+
+.icon-btn.recording {
+  border-color: rgba(255, 100, 100, 0.5);
+  color: #ff6b6b;
+  animation: pulse-red 1.5s infinite;
+}
+
+@keyframes pulse-red {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.4);
+  }
+
+  70% {
+    box-shadow: 0 0 0 10px rgba(255, 107, 107, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 107, 107, 0);
+  }
 }
 
 .submit-btn {
@@ -224,7 +259,8 @@
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 0.3rem 0.8rem;
-  border-radius: 4px; /* More tech/minimal feel */
+  border-radius: 4px;
+  /* More tech/minimal feel */
   font-family: 'Montserrat', sans-serif;
   font-size: 0.65rem;
   letter-spacing: 0.15em;
@@ -237,6 +273,25 @@
   background: rgba(255, 255, 255, 0.1);
   color: white;
   border-color: rgba(255, 255, 255, 0.3);
+}
+
+.gallery-btn {
+  padding: 0.8rem 1.5rem;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 2rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.gallery-btn:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+  color: white;
 }
 
 /* Spinner */
@@ -262,5 +317,7 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }

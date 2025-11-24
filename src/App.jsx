@@ -3,18 +3,29 @@ import { Leva } from 'leva'
 import { Suspense, useState } from 'react'
 import Scene from './Scene'
 import InputInterface from './components/InputInterface'
+import GalleryScene from './GalleryScene'
 
 function App() {
-  const [appState, setAppState] = useState('input') // input, processing, preview, immersed
+  const [appState, setAppState] = useState('input') // input, processing, preview, immersed, gallery
   const [dreamData, setDreamData] = useState(null)
+  const [transitionData, setTransitionData] = useState(null)
 
   const handleDreamGenerated = (data) => {
     setDreamData(data)
     setAppState('preview')
   }
 
-  const handleEnterDream = () => {
+  const handleEnterDream = (data) => {
+    setTransitionData(data)
     setAppState('immersed')
+  }
+
+  const handleTransitionComplete = () => {
+    setTransitionData(null)
+  }
+
+  if (appState === 'gallery') {
+    return <GalleryScene onBack={() => setAppState('input')} />
   }
 
   return (
@@ -23,7 +34,7 @@ function App() {
         collapsed={false}
         theme={{
           colors: {
-            elevation1: 'rgba(0,0,0,0.5)', 
+            elevation1: 'rgba(0,0,0,0.5)',
             elevation2: '#1a1a1a',
             elevation3: '#2a2a2a',
             accent1: '#ffffff',
@@ -48,16 +59,48 @@ function App() {
       >
         <color attach="background" args={['#000000']} />
         <Suspense fallback={null}>
-          <Scene appState={appState} dreamData={dreamData} />
+          <Scene 
+            appState={appState} 
+            dreamData={dreamData} 
+            transitionData={transitionData}
+            onTransitionComplete={handleTransitionComplete}
+          />
         </Suspense>
       </Canvas>
 
-      <InputInterface 
-        appState={appState} 
+      <InputInterface
+        appState={appState}
         setAppState={setAppState}
         onDreamGenerated={handleDreamGenerated}
         onEnterDream={handleEnterDream}
       />
+
+      {/* Temporary Navigation to Gallery */}
+      <div style={{
+        position: 'absolute',
+        bottom: '2rem',
+        right: '2rem',
+        zIndex: 2000
+      }}>
+        <button
+          onClick={() => setAppState('gallery')}
+          style={{
+            background: 'rgba(255,255,255,0.1)',
+            border: '1px solid rgba(255,255,255,0.2)',
+            color: 'white',
+            padding: '10px 20px',
+            borderRadius: '20px',
+            cursor: 'pointer',
+            backdropFilter: 'blur(10px)',
+            fontFamily: 'Montserrat, sans-serif',
+            textTransform: 'uppercase',
+            letterSpacing: '0.1em',
+            fontSize: '0.8rem'
+          }}
+        >
+          Enter Gallery
+        </button>
+      </div>
     </>
   )
 }

@@ -35,15 +35,15 @@ const ParticleMaterial = shaderMaterial(
 import { extend } from '@react-three/fiber'
 extend({ ParticleMaterial })
 
-const DreamParticles = ({ appState, dreamData }) => {
+const DreamParticles = ({ appState, dreamData, isGalleryItem = false }) => {
     // Default placeholder texture
     const defaultUrl = 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=800&q=80'
     // Use texture from dreamData if available, otherwise default
     const textureUrl = dreamData?.imageUrl || defaultUrl
-    
+
     // Load texture
     const texture = useTexture(textureUrl)
-    
+
     // Update texture when url changes
     useEffect(() => {
         if (materialRef.current) {
@@ -92,33 +92,60 @@ const DreamParticles = ({ appState, dreamData }) => {
     // Use refs for animation values to avoid re-renders
     const targetOpacity = useRef(0)
     const targetDispersion = useRef(2.0)
-    
+
     // Update targets based on appState
     useEffect(() => {
+        let timeoutId;
+
         if (appState === 'immersed') {
-            targetOpacity.current = controls.opacity
-            targetDispersion.current = controls.dispersion
+            // Start by hiding or keeping background subtle to let the explosion shine
+            // Setting to 0.0 makes it fade out first, then fade in (dramatic effect)
+            targetOpacity.current = 0.0;
+
+            // Force immediate blackout of previous background for clean stage
+            if (materialRef.current) {
+                materialRef.current.uOpacity = 0.0;
+            }
+
+            // Wait for the card explosion to expand before revealing the nebula
+            timeoutId = setTimeout(() => {
+                targetOpacity.current = controls.opacity;
+                targetDispersion.current = controls.dispersion;
+            }, 600); // 0.6s delay - almost immediate overlap
+
+        } else if (isGalleryItem) {
+            targetOpacity.current = controls.opacity;
+            targetDispersion.current = controls.dispersion;
         } else {
             // In input/preview mode, keep particles subtle in background
-            targetOpacity.current = 0.3 
-            targetDispersion.current = 1.5 // Dispersed
+            targetOpacity.current = 0.6;
+            targetDispersion.current = 0.8; // Use default dispersion for HD look
         }
-    }, [appState, controls.opacity, controls.dispersion])
+
+        return () => {
+            if (timeoutId) clearTimeout(timeoutId);
+        };
+    }, [appState, controls.opacity, controls.dispersion, isGalleryItem])
+
+    // Determine effective density
+    // If gallery item, use lower density for performance (e.g. 128x128 = 16k particles)
+    // Otherwise use the Leva control value (default 400x400 = 160k particles)
+    const effectiveDensity = isGalleryItem ? 128 : controls.density
 
     // Generate particles
     const particles = useMemo(() => {
-        const count = controls.density * controls.density
+        const count = effectiveDensity * effectiveDensity
         const positions = new Float32Array(count * 3)
         const uvs = new Float32Array(count * 2)
         const randoms = new Float32Array(count * 3)
 
-        for (let i = 0; i < controls.density; i++) {
-            for (let j = 0; j < controls.density; j++) {
-                const index = (i * controls.density + j)
+        for (let i = 0; i < effectiveDensity; i++) {
+            for (let j = 0; j < effectiveDensity; j++) {
+                const index = (i * effectiveDensity + j)
 
                 // Normalized coordinates (0 to 1)
-                const u = j / (controls.density - 1)
-                const v = i / (controls.density - 1)
+                const u = j / (effectiveDensity - 1)
+                const v = i / (effectiveDensity - 1)
 
                 // Center the plane
                 const x = (u - 0.5) * 10 // Width 10
@@ -140,7 +167,7 @@ const DreamParticles = ({ appState, dreamData }) => {
         }
 
         return { positions, uvs, randoms }
-    }, [controls.density])
+    }, [effectiveDensity])
 
     const materialRef = useRef()
     const mouse = useRef(new THREE.Vector2(0, 0))
@@ -159,28 +186,33 @@ const DreamParticles = ({ appState, dreamData }) => {
 
             // ANIMATION TRANSITIONS
             // Lerp current values towards targets
-            const lerpSpeed = 2.0 * delta
-            
+
+            // Dynamic speed: Slow fade-in for immersed state, fast for others
+            let lerpSpeed = 2.0 * delta;
+            if (appState === 'immersed' && materialRef.current.uOpacity < targetOpacity.current) {
+                lerpSpeed = 0.3 * delta; // Very slow fade-in (approx 3-4 seconds to full)
+            }
+
             // Opacity
             materialRef.current.uOpacity = THREE.MathUtils.lerp(
-                materialRef.current.uOpacity, 
-                targetOpacity.current, 
+                materialRef.current.uOpacity,
+                targetOpacity.current,
                 lerpSpeed
             )
-            
+
             // Dispersion
             materialRef.current.uDispersion = THREE.MathUtils.lerp(
                 materialRef.current.uDispersion,
                 targetDispersion.current,
                 lerpSpeed
             )
-            
+
             // Sync other controls
             materialRef.current.uSize = controls.size
             materialRef.current.uDisplacementStrength = controls.displacementStrength
             materialRef.current.uThreshold = controls.threshold
             // ... (other uniforms are synced if needed, but for performance we can just set them if changed in Leva)
-             // Syncing Leva values that we don't animate automatically
+            // Syncing Leva values that we don't animate automatically
             materialRef.current.uRandomness = controls.randomness
             materialRef.current.uEdgeSoftness = controls.edgeSoftness
             materialRef.current.uBrightness = controls.brightness

@@ -1,5 +1,6 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import html2canvas from 'html2canvas'
 import './InputInterface.css'
 
 // 简单的 SVG 图标组件
@@ -16,6 +17,7 @@ export default function InputInterface({ appState, setAppState, onDreamGenerated
   const [input, setInput] = useState('')
   const [isRecording, setIsRecording] = useState(false)
   const [localDreamData, setLocalDreamData] = useState(null) // Keep local copy for display
+  const cardRef = useRef(null)
 
   const handleRecord = () => {
     setIsRecording(!isRecording)
@@ -23,35 +25,76 @@ export default function InputInterface({ appState, setAppState, onDreamGenerated
       console.log("Recording started...")
     } else {
       console.log("Recording stopped.")
-      setInput("I was flying over a city made of crystal, and the sky was filled with geometric auroras...") 
+      setInput("I was flying over a city made of crystal, and the sky was filled with geometric auroras...")
+    }
+  }
+
+  const handleEnter = async () => {
+    if (!cardRef.current) return
+
+    // Capture the card visually
+    try {
+      const canvas = await html2canvas(cardRef.current, {
+        backgroundColor: null, // Transparent background
+        scale: 2, // Retain high quality
+        logging: false,
+        useCORS: true // Important for external images
+      })
+
+      const rect = cardRef.current.getBoundingClientRect()
+      const textureData = canvas.toDataURL('image/png')
+
+      onEnterDream({
+        texture: textureData,
+        x: rect.left,
+        y: rect.top,
+        width: rect.width,
+        height: rect.height
+      })
+    } catch (err) {
+      console.error("Failed to capture dream card:", err)
+      // Fallback if capture fails
+      onEnterDream(null)
     }
   }
 
   const handleSubmit = (e) => {
     e.preventDefault()
     if (!input.trim()) return
-    
+
     setAppState('processing')
-    
+
     // 模拟 AI 生成过程
-    setTimeout(() => {
-        const data = {
-            imageUrl: "https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=1000&auto=format&fit=crop", // 占位图：星云/幻想风格
-            keywords: ["Freedom", "Clarity", "Ascension"],
-            analysis: "This dream suggests a desire to transcend current limitations and view your life from a higher perspective."
-        }
-        setLocalDreamData(data)
-        onDreamGenerated(data)
+    setTimeout(async () => {
+      const rawUrl = "https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=1000&auto=format&fit=crop";
+
+      let imageUrl = rawUrl;
+      try {
+        // Pre-fetch image to ensure it's loaded and handle CORS for html2canvas
+        const response = await fetch(rawUrl);
+        const blob = await response.blob();
+        imageUrl = URL.createObjectURL(blob);
+      } catch (e) {
+        console.warn("Failed to pre-fetch image, falling back to direct URL", e);
+      }
+
+      const data = {
+        imageUrl: imageUrl,
+        keywords: ["Freedom", "Clarity", "Ascension"],
+        analysis: "This dream suggests a desire to transcend current limitations and view your life from a higher perspective."
+      }
+      setLocalDreamData(data)
+      onDreamGenerated(data)
     }, 2000)
   }
 
   return (
     <div className={`input-overlay ${appState === 'immersed' ? 'hidden' : ''}`}>
       <AnimatePresence mode="wait">
-        
+
         {/* STEP 1: INPUT */}
         {appState === 'input' && (
-          <motion.div 
+          <motion.div
             key="input-card"
             className="glass-card"
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
@@ -61,10 +104,10 @@ export default function InputInterface({ appState, setAppState, onDreamGenerated
           >
             <h1 className="title">Dream Journal</h1>
             <p className="subtitle">Materialize your subconscious</p>
-            
+
             <form onSubmit={handleSubmit} className="input-group">
-              <input 
-                type="text" 
+              <input
+                type="text"
                 className="dream-input"
                 placeholder="Describe your dream..."
                 value={input}
@@ -74,7 +117,7 @@ export default function InputInterface({ appState, setAppState, onDreamGenerated
             </form>
 
             <div className="controls">
-              <motion.button 
+              <motion.button
                 className={`icon-btn ${isRecording ? 'recording' : ''}`}
                 onClick={handleRecord}
                 whileTap={{ scale: 0.9 }}
@@ -82,9 +125,9 @@ export default function InputInterface({ appState, setAppState, onDreamGenerated
               >
                 <MicIcon />
               </motion.button>
-              
-              {input && (
-                <motion.button 
+
+              {input ? (
+                <motion.button
                   className="submit-btn"
                   onClick={handleSubmit}
                   initial={{ opacity: 0, x: 20 }}
@@ -94,6 +137,17 @@ export default function InputInterface({ appState, setAppState, onDreamGenerated
                 >
                   Materialize
                 </motion.button>
+              ) : (
+                <motion.button
+                  className="gallery-btn"
+                  onClick={() => setAppState('gallery')}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 0.7 }}
+                  whileHover={{ scale: 1.05, opacity: 1 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  View Gallery
+                </motion.button>
               )}
             </div>
           </motion.div>
@@ -101,51 +155,52 @@ export default function InputInterface({ appState, setAppState, onDreamGenerated
 
         {/* STEP 2: PROCESSING */}
         {appState === 'processing' && (
-            <motion.div
-                key="processing"
-                className="processing-indicator"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-            >
-                <div className="spinner"></div>
-                <p>Weaving dream threads...</p>
-            </motion.div>
+          <motion.div
+            key="processing"
+            className="processing-indicator"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <div className="spinner"></div>
+            <p>Weaving dream threads...</p>
+          </motion.div>
         )}
 
         {/* STEP 3: PREVIEW */}
         {appState === 'preview' && localDreamData && (
-            <motion.div
-                key="preview-card"
-                className="glass-card preview-mode"
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 1.1, filter: "blur(20px)" }}
-                transition={{ duration: 0.8, ease: [0.19, 1, 0.22, 1] }}
-            >
-                <div className="preview-image-container">
-                    <img src={localDreamData.imageUrl} alt="Dream visualization" className="preview-image" />
-                    <div className="overlay-gradient"></div>
-                </div>
-                
-                <div className="preview-content">
-                    <div className="keywords">
-                        {localDreamData.keywords.map((kw, i) => (
-                            <span key={i} className="keyword-chip">{kw}</span>
-                        ))}
-                    </div>
-                    <p className="analysis-text">{localDreamData.analysis}</p>
-                </div>
+          <motion.div
+            key="preview-card"
+            ref={cardRef}
+            className="glass-card preview-mode"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 1.1, filter: "blur(20px)" }}
+            transition={{ duration: 0.8, ease: [0.19, 1, 0.22, 1] }}
+          >
+            <div className="preview-image-container">
+              <img src={localDreamData.imageUrl} alt="Dream visualization" className="preview-image" crossOrigin="anonymous" />
+              <div className="overlay-gradient"></div>
+            </div>
 
-                <motion.button 
-                  className="submit-btn primary-action"
-                  onClick={onEnterDream}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  Enter Dreamscape
-                </motion.button>
-            </motion.div>
+            <div className="preview-content">
+              <div className="keywords">
+                {localDreamData.keywords.map((kw, i) => (
+                  <span key={i} className="keyword-chip">{kw}</span>
+                ))}
+              </div>
+              <p className="analysis-text">{localDreamData.analysis}</p>
+            </div>
+
+            <motion.button
+              className="submit-btn primary-action"
+              onClick={handleEnter}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              Enter Dreamscape
+            </motion.button>
+          </motion.div>
         )}
 
       </AnimatePresence>
