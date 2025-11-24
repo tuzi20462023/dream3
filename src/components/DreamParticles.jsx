@@ -1,4 +1,4 @@
-import { useMemo, useRef } from 'react'
+import { useMemo, useRef, useEffect, useState } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import { useTexture, shaderMaterial } from '@react-three/drei'
 import * as THREE from 'three'
@@ -15,10 +15,10 @@ const ParticleMaterial = shaderMaterial(
         uThreshold: 0.0,
         uRandomness: 0.0,
         uEdgeSoftness: 0.0,
-        uOpacity: 1.0,
+        uOpacity: 0.0, // Start invisible
         uBrightness: 1.0,
         uTime: 0.0,
-        uDispersion: 1.0,
+        uDispersion: 2.0, // Start dispersed
         uCurlStrength: 0.5,
         uJitter: 0.1,
         uMouse: new THREE.Vector2(0, 0),
@@ -35,12 +35,23 @@ const ParticleMaterial = shaderMaterial(
 import { extend } from '@react-three/fiber'
 extend({ ParticleMaterial })
 
-const DreamParticles = () => {
-    // Load a sample texture (using a placeholder for now)
-    // You can replace this with any image URL
-    const texture = useTexture('https://images.unsplash.com/photo-1534447677768-be436bb09401?w=800&q=80')
+const DreamParticles = ({ appState, dreamData }) => {
+    // Default placeholder texture
+    const defaultUrl = 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=800&q=80'
+    // Use texture from dreamData if available, otherwise default
+    const textureUrl = dreamData?.imageUrl || defaultUrl
+    
+    // Load texture
+    const texture = useTexture(textureUrl)
+    
+    // Update texture when url changes
+    useEffect(() => {
+        if (materialRef.current) {
+            materialRef.current.uTexture = texture
+        }
+    }, [texture])
 
-    // Default values based on user preference
+    // Default values
     const defaults = {
         size: 0.33,
         density: 400,
@@ -78,22 +89,36 @@ const DreamParticles = () => {
         'Reset Defaults': button(() => set(defaults))
     }))
 
-    const { size, density, displacementStrength, threshold, randomness, edgeSoftness, opacity, brightness, dispersion, curlStrength, jitter, mouseRadius, mouseStrength, mouseDisp, dispersionZone } = controls
+    // Use refs for animation values to avoid re-renders
+    const targetOpacity = useRef(0)
+    const targetDispersion = useRef(2.0)
+    
+    // Update targets based on appState
+    useEffect(() => {
+        if (appState === 'immersed') {
+            targetOpacity.current = controls.opacity
+            targetDispersion.current = controls.dispersion
+        } else {
+            // In input/preview mode, keep particles subtle in background
+            targetOpacity.current = 0.3 
+            targetDispersion.current = 1.5 // Dispersed
+        }
+    }, [appState, controls.opacity, controls.dispersion])
 
     // Generate particles
     const particles = useMemo(() => {
-        const count = density * density
+        const count = controls.density * controls.density
         const positions = new Float32Array(count * 3)
         const uvs = new Float32Array(count * 2)
         const randoms = new Float32Array(count * 3)
 
-        for (let i = 0; i < density; i++) {
-            for (let j = 0; j < density; j++) {
-                const index = (i * density + j)
+        for (let i = 0; i < controls.density; i++) {
+            for (let j = 0; j < controls.density; j++) {
+                const index = (i * controls.density + j)
 
                 // Normalized coordinates (0 to 1)
-                const u = j / (density - 1)
-                const v = i / (density - 1)
+                const u = j / (controls.density - 1)
+                const v = i / (controls.density - 1)
 
                 // Center the plane
                 const x = (u - 0.5) * 10 // Width 10
@@ -115,25 +140,56 @@ const DreamParticles = () => {
         }
 
         return { positions, uvs, randoms }
-    }, [density])
+    }, [controls.density])
 
     const materialRef = useRef()
-
-    // Mouse tracking
     const mouse = useRef(new THREE.Vector2(0, 0))
     const { viewport } = useThree()
 
-    useFrame((state) => {
+    useFrame((state, delta) => {
         if (materialRef.current) {
-            materialRef.current.uniforms.uTime.value = state.clock.elapsedTime
+            materialRef.current.uTime = state.clock.elapsedTime
 
             // Smooth mouse movement
             const targetX = (state.mouse.x * viewport.width) / 2
             const targetY = (state.mouse.y * viewport.height) / 2
             mouse.current.x += (targetX - mouse.current.x) * 0.1
             mouse.current.y += (targetY - mouse.current.y) * 0.1
+            materialRef.current.uMouse.set(mouse.current.x, mouse.current.y)
 
-            materialRef.current.uniforms.uMouse.value.set(mouse.current.x, mouse.current.y)
+            // ANIMATION TRANSITIONS
+            // Lerp current values towards targets
+            const lerpSpeed = 2.0 * delta
+            
+            // Opacity
+            materialRef.current.uOpacity = THREE.MathUtils.lerp(
+                materialRef.current.uOpacity, 
+                targetOpacity.current, 
+                lerpSpeed
+            )
+            
+            // Dispersion
+            materialRef.current.uDispersion = THREE.MathUtils.lerp(
+                materialRef.current.uDispersion,
+                targetDispersion.current,
+                lerpSpeed
+            )
+            
+            // Sync other controls
+            materialRef.current.uSize = controls.size
+            materialRef.current.uDisplacementStrength = controls.displacementStrength
+            materialRef.current.uThreshold = controls.threshold
+            // ... (other uniforms are synced if needed, but for performance we can just set them if changed in Leva)
+             // Syncing Leva values that we don't animate automatically
+            materialRef.current.uRandomness = controls.randomness
+            materialRef.current.uEdgeSoftness = controls.edgeSoftness
+            materialRef.current.uBrightness = controls.brightness
+            materialRef.current.uCurlStrength = controls.curlStrength
+            materialRef.current.uJitter = controls.jitter
+            materialRef.current.uMouseRadius = controls.mouseRadius
+            materialRef.current.uMouseStrength = controls.mouseStrength
+            materialRef.current.uMouseDisp = controls.mouseDisp
+            materialRef.current.uDispersionZone = controls.dispersionZone
         }
     })
 
@@ -159,24 +215,10 @@ const DreamParticles = () => {
                     itemSize={3}
                 />
             </bufferGeometry>
+            {/* Note: We pass props to particleMaterial, but useFrame updates them for animation */}
             <particleMaterial
                 ref={materialRef}
                 uTexture={texture}
-                uSize={size}
-                uDisplacementStrength={displacementStrength}
-                uThreshold={threshold}
-                uRandomness={randomness}
-                uEdgeSoftness={edgeSoftness}
-                uOpacity={opacity}
-                uBrightness={brightness}
-                uDispersion={dispersion}
-                uCurlStrength={curlStrength}
-                uJitter={jitter}
-                uMouse={new THREE.Vector2(0, 0)}
-                uMouseRadius={mouseRadius}
-                uMouseStrength={mouseStrength}
-                uMouseDisp={mouseDisp}
-                uDispersionZone={dispersionZone}
                 transparent
                 depthWrite={false}
                 blending={THREE.AdditiveBlending}

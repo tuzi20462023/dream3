@@ -1,19 +1,32 @@
 import { Canvas } from '@react-three/fiber'
 import { Leva } from 'leva'
-import { Suspense } from 'react'
+import { Suspense, useState } from 'react'
 import Scene from './Scene'
+import InputInterface from './components/InputInterface'
 
 function App() {
+  const [appState, setAppState] = useState('input') // input, processing, preview, immersed
+  const [dreamData, setDreamData] = useState(null)
+
+  const handleDreamGenerated = (data) => {
+    setDreamData(data)
+    setAppState('preview')
+  }
+
+  const handleEnterDream = () => {
+    setAppState('immersed')
+  }
+
   return (
     <>
       <Leva
         collapsed={false}
         theme={{
           colors: {
-            elevation1: 'rgba(0,0,0,0.5)', // Transparent background
+            elevation1: 'rgba(0,0,0,0.5)', 
             elevation2: '#1a1a1a',
             elevation3: '#2a2a2a',
-            accent1: '#ffffff', // White accents
+            accent1: '#ffffff',
             accent2: '#cccccc',
             accent3: '#aaaaaa',
             highlight1: '#ffffff',
@@ -35,14 +48,16 @@ function App() {
       >
         <color attach="background" args={['#000000']} />
         <Suspense fallback={null}>
-          <Scene />
+          <Scene appState={appState} dreamData={dreamData} />
         </Suspense>
       </Canvas>
 
-      {/* UI Layer will go here */}
-      <div style={{ position: 'absolute', top: 0, left: 0, pointerEvents: 'none', width: '100%', height: '100%' }}>
-        {/* Placeholder for UI */}
-      </div>
+      <InputInterface 
+        appState={appState} 
+        setAppState={setAppState}
+        onDreamGenerated={handleDreamGenerated}
+        onEnterDream={handleEnterDream}
+      />
     </>
   )
 }
