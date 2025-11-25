@@ -185,24 +185,25 @@ const DreamParticles = ({ appState, dreamData, isGalleryItem = false }) => {
     const { viewport } = useThree()
 
     // Cleanup resources on unmount to prevent WebGL context loss
+    // TEMPORARILY DISABLED for diagnosis
     useEffect(() => {
         return () => {
-            // Delay disposal to prevent simultaneous resource destruction
-            setTimeout(() => {
-                try {
-                    // Dispose geometry (automatically handles attributes)
-                    if (geometryRef.current) {
-                        geometryRef.current.dispose()
-                    }
-                    // Dispose material
-                    if (materialRef.current) {
-                        materialRef.current.dispose()
-                    }
-                    console.log('[DreamParticles] Resources cleaned up')
-                } catch (err) {
-                    console.warn('[DreamParticles] Cleanup error (safe to ignore):', err)
-                }
-            }, 100)
+            console.log('[DreamParticles] Component unmounted (cleanup disabled for testing)')
+            // setTimeout(() => {
+            //     try {
+            //         // Dispose geometry (automatically handles attributes)
+            //         if (geometryRef.current) {
+            //             geometryRef.current.dispose()
+            //         }
+            //         // Dispose material
+            //         if (materialRef.current) {
+            //             materialRef.current.dispose()
+            //         }
+            //         console.log('[DreamParticles] Resources cleaned up')
+            //     } catch (err) {
+            //         console.warn('[DreamParticles] Cleanup error (safe to ignore):', err)
+            //     }
+            // }, 100)
         }
     }, [])
 

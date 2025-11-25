@@ -215,21 +215,23 @@ function SoulCloud({ mousePos }) {
     }), [])
 
     // Cleanup resources on unmount
+    // TEMPORARILY DISABLED for diagnosis
     useEffect(() => {
         return () => {
-            setTimeout(() => {
-                try {
-                    if (geometryRef.current) {
-                        geometryRef.current.dispose()
-                    }
-                    if (materialRef.current) {
-                        materialRef.current.dispose()
-                    }
-                    console.log('[SoulCloud] Resources cleaned up')
-                } catch (err) {
-                    console.warn('[SoulCloud] Cleanup error (safe to ignore):', err)
-                }
-            }, 100)
+            console.log('[SoulCloud] Component unmounted (cleanup disabled for testing)')
+            // setTimeout(() => {
+            //     try {
+            //         if (geometryRef.current) {
+            //             geometryRef.current.dispose()
+            //         }
+            //         if (materialRef.current) {
+            //             materialRef.current.dispose()
+            //         }
+            //         console.log('[SoulCloud] Resources cleaned up')
+            //     } catch (err) {
+            //         console.warn('[SoulCloud] Cleanup error (safe to ignore):', err)
+            //     }
+            // }, 100)
         }
     }, [])
 
