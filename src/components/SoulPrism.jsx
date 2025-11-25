@@ -43,7 +43,7 @@ const SoulPrism = forwardRef(({ onClick, active, position, charging }, ref) => {
             onClick={onClick} 
             onPointerOver={() => document.body.style.cursor = 'pointer'} 
             onPointerOut={() => document.body.style.cursor = 'auto'}
-            scale={active ? 1 : 0} 
+            scale={active ? 0.7 : 0} 
         >
           {/* 钻石外壳 - 璀璨效果 */}
           <mesh ref={meshRef}>

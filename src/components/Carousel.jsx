@@ -1,6 +1,6 @@
 import React, { useRef, useState, useMemo } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
-import { useScroll, Text } from '@react-three/drei'
+import { useScroll, Text, Billboard } from '@react-three/drei'
 import * as THREE from 'three'
 import DreamParticles from "./DreamParticles";
 
@@ -10,12 +10,24 @@ function CarouselItem({ dream, index, scrollOffset, totalItems, onClick, onHover
     const [hovered, setHovered] = useState(false)
 
     // Configuration
-    const spacing = 4 // Distance between items
-    const baseZ = -5 // Step 2: Push everything back
+    const spacing = 12 // Slightly more compact
+    const baseZ = -18 // Step 4: Push back even further for a "distant galaxy" feel
     const width = spacing * (totalItems - 1)
+
+    // Track previous offset to calculate directional velocity
+    const lastOffset = useRef(scrollOffset.offset)
 
     useFrame((state, delta) => {
         if (!group.current) return
+
+        // Calculate directional scroll velocity
+        const currentOffset = scrollOffset.offset
+        const scrollDelta = currentOffset - lastOffset.current
+        lastOffset.current = currentOffset
+
+        // Tilt strength multiplier
+        const tiltStrength = 40.0
+        const dynamicTilt = -scrollDelta * tiltStrength
 
         // Step 3: Core Scroll Logic
         const currentScroll = scrollOffset.offset * (totalItems - 1)
@@ -31,12 +43,9 @@ function CarouselItem({ dream, index, scrollOffset, totalItems, onClick, onHover
         // -Math.pow(Math.abs(dist), 1.5) * 0.1 creates the curve
         group.current.position.z = baseZ - Math.pow(Math.abs(dist), 1.5) * 0.1
 
-        // 3. Rotation Y: Rotate inwards based on side
-        // Left side (dist < 0) rotates right (+), Right side rotates left (-)
-        group.current.rotation.y = -dist * 0.05
-
-        // 4. Scale: Center is largest
-        const targetScale = THREE.MathUtils.lerp(1.2, 0.8, Math.min(Math.abs(dist) * 0.1, 1))
+        // 3. Scale: Center is largest but not overwhelming
+        // Reduced from 1.2->0.8 to 0.9->0.6 for a more delicate look
+        const targetScale = THREE.MathUtils.lerp(0.9, 0.6, Math.min(Math.abs(dist) * 0.1, 1))
         const finalScale = hovered ? targetScale * 1.1 : targetScale
 
         group.current.scale.setScalar(finalScale)
@@ -77,12 +86,19 @@ function CarouselItem({ dream, index, scrollOffset, totalItems, onClick, onHover
                 onPointerOut={handlePointerOut}
                 style={{ cursor: 'pointer' }}
             >
-                <DreamParticles
-                    dreamData={dream}
-                    isGalleryItem={true}
-                    active={hovered}
-                    scale={1} // Scale handled by parent group
-                />
+                <Billboard
+                    follow={true}
+                    lockX={false}
+                    lockY={false}
+                    lockZ={false} // Lock the rotation on the z axis (default=false)
+                >
+                    <DreamParticles
+                        dreamData={dream}
+                        isGalleryItem={true}
+                        active={hovered}
+                        scale={1} // Scale handled by parent group
+                    />
+                </Billboard>
             </group>
 
             <group ref={textGroup}>

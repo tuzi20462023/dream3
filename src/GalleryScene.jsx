@@ -149,10 +149,7 @@ const DreamModal = ({ dream, onClose }) => {
   )
 }
 
-// New Unified Rig for HUD and Report
-// New Unified Rig for HUD and Report
-import { createPortal } from '@react-three/fiber'
-
+// HUD Component - Brute Force Approach (Most Stable)
 function SoulPrismHUD({ viewMode, setViewMode, prismRef, charging, onClick }) {
   const { camera } = useThree()
   const [showReport, setShowReport] = useState(false)
@@ -165,27 +162,26 @@ function SoulPrismHUD({ viewMode, setViewMode, prismRef, charging, onClick }) {
     }
   }, [viewMode])
 
-  // Step 1: Fix Camera & HUD
-  // We use createPortal to mount the Prism as a child of the camera.
-  // This ensures it is "nailed" to the screen (HUD), moving exactly with the camera.
-  // Coordinates are now in Camera Space (0,0,0 is the lens).
+  // Force prism to stay in front of camera every frame
+  useFrame(() => {
+    if (prismRef.current && viewMode === 'timeline') {
+      // Calculate position in world space relative to camera
+      const offset = new THREE.Vector3(6.15, -2.4, -8) // Right-bottom corner
+      offset.applyQuaternion(camera.quaternion)
+      prismRef.current.position.copy(camera.position).add(offset)
 
-  return createPortal(
+      // Make prism face the camera
+      prismRef.current.lookAt(camera.position)
+    }
+  })
+
+  return (
     <group ref={prismRef}>
-      {/* 
-            Position Adjustment (Camera Space):
-            z: -3 (Very close to camera, ensures it's on top of everything)
-            x: 1.5 (Right side)
-            y: -0.8 (Bottom side)
-            scale: 0.15 (Scaled down to fit since it's close)
-        */}
-      <group position={[1.5, -0.8, -3]} rotation={[0, -0.2, 0]} scale={0.15}>
-        <SoulPrism
-          active={true}
-          charging={charging}
-          onClick={onClick}
-        />
-      </group>
+      <SoulPrism
+        active={viewMode === 'timeline'}
+        charging={charging}
+        onClick={onClick}
+      />
 
       {/* The Report spawns from the Prism */}
       <AnimatePresence>
@@ -193,8 +189,65 @@ function SoulPrismHUD({ viewMode, setViewMode, prismRef, charging, onClick }) {
           <HolisticReport onBack={() => setViewMode('timeline')} />
         )}
       </AnimatePresence>
-    </group>,
-    camera
+    </group>
+  )
+}
+
+// ... (Keep existing imports)
+import { useDrag } from '@use-gesture/react'
+
+// ... (Keep Stardust, DreamModal, SoulPrismHUD)
+
+function WorldGroup({ children }) {
+  const group = useRef()
+
+  // Physics state
+  const targetRotation = useRef([0, 0])
+  const currentRotation = useRef([0, 0])
+
+  const bind = useDrag(({ delta: [dx, dy], active, dragging }) => {
+    // Sensitivity
+    const speed = 0.005
+
+    // Update target
+    // Drag Y -> Rotate X (Pitch)
+    // Drag X -> Rotate Y (Yaw)
+    targetRotation.current[0] += dy * speed
+    targetRotation.current[1] += dx * speed
+
+    // Clamp Pitch (X): -30 deg to +60 deg
+    // -30 deg = -0.52 rad
+    // +60 deg = 1.05 rad
+    targetRotation.current[0] = Math.max(-0.52, Math.min(1.05, targetRotation.current[0]))
+
+    // Clamp Yaw (Y): -45 deg to +45 deg
+    // -45 deg = -0.78 rad
+    // +45 deg = 0.78 rad
+    targetRotation.current[1] = Math.max(-0.78, Math.min(0.78, targetRotation.current[1]))
+  })
+
+  useFrame((state, delta) => {
+    // Damping / Lerp
+    // Smoothly interpolate current rotation to target
+    const damp = 5 * delta
+    currentRotation.current[0] = THREE.MathUtils.lerp(currentRotation.current[0], targetRotation.current[0], damp)
+    currentRotation.current[1] = THREE.MathUtils.lerp(currentRotation.current[1], targetRotation.current[1], damp)
+
+    if (group.current) {
+      group.current.rotation.x = currentRotation.current[0]
+      group.current.rotation.y = currentRotation.current[1]
+    }
+  })
+
+  return (
+    <group ref={group} {...bind()}>
+      {/* Invisible Hit Plane for Dragging */}
+      {/* Must be large enough to cover the screen and facing the camera */}
+      <mesh visible={false} position={[0, 0, 0]}>
+        <planeGeometry args={[100, 100]} />
+      </mesh>
+      {children}
+    </group>
   )
 }
 
@@ -251,9 +304,7 @@ const GalleryScene = ({ onBack, dreams }) => {
           <DepthOfField focusDistance={0} focalLength={0.02} bokehScale={viewMode === 'analysis' ? 10 : 2} height={480} />
         </EffectComposer>
 
-        <Stardust />
-
-        {/* Carousel Logic */}
+        {/* Carousel Logic with Volumetric Inspection */}
         {viewMode === 'timeline' && (
           <ScrollControls
             horizontal
@@ -262,7 +313,10 @@ const GalleryScene = ({ onBack, dreams }) => {
             distance={1}
             infinite={false}
           >
-            <Carousel dreams={activeDreams} onSelectDream={setSelectedDream} />
+            <WorldGroup>
+              <Stardust />
+              <Carousel dreams={activeDreams} onSelectDream={setSelectedDream} />
+            </WorldGroup>
           </ScrollControls>
         )}
 
@@ -296,7 +350,7 @@ const GalleryScene = ({ onBack, dreams }) => {
           color: 'rgba(255,255,255,0.3)', fontFamily: 'Montserrat, sans-serif', fontSize: '0.7rem',
           pointerEvents: 'none', letterSpacing: '0.4em', textTransform: 'uppercase'
         }}>
-          Drag to Explore Memory Stream
+          Drag to Rotate • Scroll to Explore
         </div>
       )}
 

@@ -177,13 +177,6 @@ const DreamParticles = ({ appState, dreamData, isGalleryItem = false }) => {
         if (materialRef.current) {
             materialRef.current.uTime = state.clock.elapsedTime
 
-            // Smooth mouse movement
-            const targetX = (state.mouse.x * viewport.width) / 2
-            const targetY = (state.mouse.y * viewport.height) / 2
-            mouse.current.x += (targetX - mouse.current.x) * 0.1
-            mouse.current.y += (targetY - mouse.current.y) * 0.1
-            materialRef.current.uMouse.set(mouse.current.x, mouse.current.y)
-
             // ANIMATION TRANSITIONS
             // Lerp current values towards targets
 
@@ -211,8 +204,6 @@ const DreamParticles = ({ appState, dreamData, isGalleryItem = false }) => {
             materialRef.current.uSize = controls.size
             materialRef.current.uDisplacementStrength = controls.displacementStrength
             materialRef.current.uThreshold = controls.threshold
-            // ... (other uniforms are synced if needed, but for performance we can just set them if changed in Leva)
-            // Syncing Leva values that we don't animate automatically
             materialRef.current.uRandomness = controls.randomness
             materialRef.current.uEdgeSoftness = controls.edgeSoftness
             materialRef.current.uBrightness = controls.brightness
@@ -225,8 +216,26 @@ const DreamParticles = ({ appState, dreamData, isGalleryItem = false }) => {
         }
     })
 
+    const handlePointerMove = (e) => {
+        if (materialRef.current) {
+            // Convert world intersection point to local space
+            const localPoint = e.object.worldToLocal(e.point.clone())
+            materialRef.current.uMouse.set(localPoint.x, localPoint.y)
+        }
+    }
+
+    const handlePointerLeave = () => {
+        if (materialRef.current) {
+            // Move mouse influence away when leaving
+            materialRef.current.uMouse.set(10000, 10000)
+        }
+    }
+
     return (
-        <points>
+        <points
+            onPointerMove={handlePointerMove}
+            onPointerLeave={handlePointerLeave}
+        >
             <bufferGeometry>
                 <bufferAttribute
                     attach="attributes-position"
