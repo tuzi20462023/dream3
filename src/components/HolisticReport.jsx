@@ -214,26 +214,7 @@ function SoulCloud({ mousePos }) {
         uHover: { value: 0 }
     }), [])
 
-    // Cleanup resources on unmount
-    // TEMPORARILY DISABLED for diagnosis
-    useEffect(() => {
-        return () => {
-            console.log('[SoulCloud] Component unmounted (cleanup disabled for testing)')
-            // setTimeout(() => {
-            //     try {
-            //         if (geometryRef.current) {
-            //             geometryRef.current.dispose()
-            //         }
-            //         if (materialRef.current) {
-            //             materialRef.current.dispose()
-            //         }
-            //         console.log('[SoulCloud] Resources cleaned up')
-            //     } catch (err) {
-            //         console.warn('[SoulCloud] Cleanup error (safe to ignore):', err)
-            //     }
-            // }, 100)
-        }
-    }, [])
+    // Note: Cleanup disabled - will be handled by browser GC
 
     return (
         <points ref={meshRef}>

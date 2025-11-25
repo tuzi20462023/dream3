@@ -184,28 +184,8 @@ const DreamParticles = ({ appState, dreamData, isGalleryItem = false }) => {
     const mouse = useRef(new THREE.Vector2(0, 0))
     const { viewport } = useThree()
 
-    // Cleanup resources on unmount to prevent WebGL context loss
-    // TEMPORARILY DISABLED for diagnosis
-    useEffect(() => {
-        return () => {
-            console.log('[DreamParticles] Component unmounted (cleanup disabled for testing)')
-            // setTimeout(() => {
-            //     try {
-            //         // Dispose geometry (automatically handles attributes)
-            //         if (geometryRef.current) {
-            //             geometryRef.current.dispose()
-            //         }
-            //         // Dispose material
-            //         if (materialRef.current) {
-            //             materialRef.current.dispose()
-            //         }
-            //         console.log('[DreamParticles] Resources cleaned up')
-            //     } catch (err) {
-            //         console.warn('[DreamParticles] Cleanup error (safe to ignore):', err)
-            //     }
-            // }, 100)
-        }
-    }, [])
+    // Note: Cleanup disabled - will be handled by browser GC
+    // useEffect cleanup can cause WebGL context loss with many particle instances
 
     useFrame((state, delta) => {
         if (materialRef.current) {
