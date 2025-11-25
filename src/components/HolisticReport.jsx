@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { Html, Float, MeshTransmissionMaterial, Text } from '@react-three/drei'
+import { Html, Float, MeshTransmissionMaterial } from '@react-three/drei'
 import * as THREE from 'three'
 import { motion } from 'framer-motion'
 
@@ -12,19 +12,14 @@ export default function HolisticReport({ onBack, prismPosition }) {
     // Animation phases
     const [phase, setPhase] = useState(0)
     
-    // Position config
-    // 强制推远，不要贴脸。Z=-10 是一个比较舒服的展示距离
+    // Position config: Push back to Z=-10 for cinematic view
     const startPos = [0, 0, -10]
 
     useEffect(() => {
-        // Phase 0: Initial (Invisible)
-        // Phase 1: Frame Scan (0.5s)
-        // Phase 2: Glass Material Fade In (1.0s)
-        // Phase 3: Content Typewriter (1.5s+)
-
-        const t1 = setTimeout(() => setPhase(1), 100)
-        const t2 = setTimeout(() => setPhase(2), 600)
-        const t3 = setTimeout(() => setPhase(3), 1200)
+        // Phase Sequence
+        const t1 = setTimeout(() => setPhase(1), 100) // Start
+        const t2 = setTimeout(() => setPhase(2), 500) // Crystal Form
+        const t3 = setTimeout(() => setPhase(3), 1500) // Content Manifest
 
         return () => {
             clearTimeout(t1)
@@ -35,179 +30,243 @@ export default function HolisticReport({ onBack, prismPosition }) {
 
     useFrame((state, delta) => {
         if (groupRef.current) {
-            // Gentle floating
-            groupRef.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.1) * 0.02
-            groupRef.current.rotation.x = Math.cos(state.clock.elapsedTime * 0.15) * 0.01
+            // Very slow, majestic floating
+            groupRef.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.1) * 0.03
+            groupRef.current.rotation.x = Math.cos(state.clock.elapsedTime * 0.15) * 0.02
         }
     })
 
     return (
         <group ref={groupRef} position={startPos}>
 
-            {/* 1. Aurora Fluid Core (The Soul Energy) */}
-            {/* Placed slightly behind the glass */}
+            {/* 1. The Soul Nebula (Fluid Core) - Slightly different tint to match Prismatic theme */}
             <motion.group
-                initial={{ scale: 0.8, opacity: 0 }} // Start slightly smaller and invisible
+                initial={{ scale: 0.5, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                transition={{ duration: 2.5, ease: "easeInOut" }} // Slower, smoother fade in
+                transition={{ duration: 3.0, ease: "easeInOut" }}
             >
                 <AuroraBackground 
-                    position={[0, 0, -0.5]} // Push further back behind glass
-                    width={16} // Slightly larger to cover edges
-                    height={9} 
+                    position={[0, 0, -1]} 
+                    width={18} 
+                    height={10} 
                     scale={[1, 1, 1]}
                 />
             </motion.group>
 
-            {/* 2. Main Glass Frame (The Crystal Container) */}
+            {/* 2. The Prismatic Monolith (Glass Container) */}
             <motion.group
-                initial={{ scale: 0.6, opacity: 0 }} // Start smaller
-                animate={{ scale: 0.8, opacity: 1 }} // End at 0.8 scale (not too huge)
-                transition={{ duration: 1.5, ease: "easeOut", delay: 0.2 }}
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 1.5, ease: "easeOut", delay: 0.1 }}
             >
-                <Float speed={2} rotationIntensity={0.05} floatIntensity={0.1}>
+                <Float speed={2.5} rotationIntensity={0.1} floatIntensity={0.2}>
 
-                    {/* The Glass Slab */}
+                    {/* The Prismatic Glass Slab */}
                     <mesh>
-                        <boxGeometry args={[14, 8, 0.5]} /> {/* Thicker glass for more refraction */}
+                        {/* Rounded Box for smoother light refraction */}
+                        <boxGeometry args={[14, 8, 0.5]} />
                         <MeshTransmissionMaterial
                             backside
-                            backsideThickness={1}
+                            backsideThickness={2.0}
                             thickness={0.5}
-                            chromaticAberration={0.5} // High aberration for "prism" feel
-                            anisotropy={0.5}
-                            ior={1.8} // High refractive index (Crystal-like)
-                            color="#eefeff"
-                            roughness={0.2} // Increased roughness for softer light
-                            distortion={0.4} // Distort the fluid behind it
+                            chromaticAberration={2.0} // MAX PRISM
+                            anisotropy={1.0}
+                            ior={1.8}
+                            color="#eefeff" // White/Ice base
+                            roughness={0.0} // Perfectly smooth like liquid
+                            distortion={0.8} // Liquid distortion
                             distortionScale={0.5}
-                            temporalDistortion={0.1}
-                            background={new THREE.Color('#000000')}
+                            temporalDistortion={0.2} // Moving water effect
+                            background={new THREE.Color('#050014')}
                             transmission={phase >= 2 ? 1 : 0} 
                             opacity={phase >= 2 ? 1 : 0}
                             transparent
                         />
                     </mesh>
 
-                    {/* Glowing Border / Frame */}
-                    <mesh>
-                        <boxGeometry args={[14.05, 8.05, 0.45]} />
-                        <meshBasicMaterial
-                            color="#aaddff"
-                            wireframe={true}
-                            transparent
-                            opacity={phase >= 1 ? 0.3 : 0}
-                            blending={THREE.AdditiveBlending}
-                        />
-                    </mesh>
-
-                    {/* HTML Overlay Content */}
-                    <Html transform position={[0, 0, 0.3]} distanceFactor={10} occlude="blending">
+                    {/* 3. Floating Holographic Data (The Prismatic Interface) */}
+                    <Html transform position={[0, 0, 0.26]} distanceFactor={10} occlude="blending">
                         <div style={{
-                            width: '1000px',
-                            height: '600px',
+                            width: '1100px',
+                            height: '650px',
                             display: 'flex',
                             flexDirection: 'column',
                             fontFamily: 'Montserrat, sans-serif',
                             color: 'white',
-                            padding: '40px',
+                            padding: '50px',
                             pointerEvents: 'none',
                             opacity: phase >= 3 ? 1 : 0,
                             transition: 'opacity 1s ease',
-                            // Add a subtle gradient behind text to ensure readability against bright fluid
-                            background: 'radial-gradient(circle at center, rgba(0,0,0,0.4) 0%, transparent 80%)'
+                            background: 'radial-gradient(circle at center, rgba(255,255,255,0.02) 0%, transparent 70%)', // Subtle glow center
                         }}>
-                            {/* Header */}
+                            
+                            {/* Header: Tech/Prism Style */}
                             <div style={{
                                 display: 'flex',
                                 justifyContent: 'space-between',
                                 alignItems: 'center',
-                                borderBottom: '1px solid rgba(255,255,255,0.2)',
+                                borderBottom: '1px solid rgba(0, 255, 255, 0.3)', // Cyan tint border
                                 paddingBottom: '20px',
-                                marginBottom: '40px'
+                                marginBottom: '40px',
+                                boxShadow: '0 10px 20px -10px rgba(0, 255, 255, 0.1)'
                             }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                                    <div style={{ width: '10px', height: '10px', background: '#aaddff', borderRadius: '50%', boxShadow: '0 0 10px #aaddff' }} />
-                                    <h2 style={{ margin: 0, fontSize: '1.2rem', letterSpacing: '0.2em', fontWeight: 400 }}>SOUL ARCHETYPE ANALYSIS</h2>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                                    {/* Rotating Prism Icon */}
+                                    <div style={{ 
+                                        width: '12px', 
+                                        height: '12px', 
+                                        background: 'cyan', 
+                                        transform: 'rotate(45deg)', 
+                                        boxShadow: '0 0 15px cyan' 
+                                    }} />
+                                    <h2 style={{ 
+                                        margin: 0, 
+                                        fontSize: '1.2rem', 
+                                        letterSpacing: '0.4em', 
+                                        fontWeight: 600, 
+                                        textTransform: 'uppercase',
+                                        background: 'linear-gradient(90deg, #fff, #00ffff)',
+                                        WebkitBackgroundClip: 'text',
+                                        WebkitTextFillColor: 'transparent',
+                                        textShadow: '0 0 20px rgba(0, 255, 255, 0.5)'
+                                    }}>
+                                        Soul Archetype
+                                    </h2>
                                 </div>
-                                <div style={{ fontFamily: 'monospace', opacity: 0.6 }}>
-                                    ID: 8492-ALPHA // SYNC: 98%
+                                
+                                {/* Status Indicator instead of ID */}
+                                <div style={{ 
+                                    display: 'flex', 
+                                    gap: '10px', 
+                                    alignItems: 'center',
+                                    fontSize: '0.8rem',
+                                    color: 'rgba(0, 255, 255, 0.7)',
+                                    letterSpacing: '0.2em'
+                                }}>
+                                    <span>ANALYSIS COMPLETE</span>
+                                    <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#0f0', boxShadow: '0 0 10px #0f0' }} />
                                 </div>
                             </div>
 
                             {/* Body */}
-                            <div style={{ display: 'flex', flex: 1, gap: '60px' }}>
-                                {/* Left: Text Content */}
-                                <div style={{ flex: 1 }}>
-                                    <motion.h1
-                                        initial={{ opacity: 0, x: -20 }}
-                                        animate={phase >= 3 ? { opacity: 1, x: 0 } : {}}
-                                        transition={{ duration: 0.8 }}
-                                        style={{
-                                            fontSize: '4.5rem',
-                                            fontFamily: 'Cormorant Garamond, serif',
+                            <div style={{ display: 'flex', flex: 1, gap: '80px' }}>
+                                
+                                {/* Left: Content - Holographic Text */}
+                                <div style={{ flex: 1.2 }}> 
+                                    <h1 style={{
+                                            fontSize: '5.5rem',
                                             margin: '0 0 20px 0',
-                                            textShadow: '0 0 20px rgba(170, 221, 255, 0.5)'
+                                            fontWeight: 800, // Bolder
+                                            letterSpacing: '-0.02em',
+                                            // Prismatic Gradient Text
+                                            background: 'linear-gradient(135deg, #ffffff 0%, #00ffff 50%, #ff00ff 100%)',
+                                            WebkitBackgroundClip: 'text',
+                                            WebkitTextFillColor: 'transparent',
+                                            filter: 'drop-shadow(0 0 30px rgba(0, 255, 255, 0.4))'
                                         }}
                                     >
                                         The Seeker
-                                    </motion.h1>
+                                    </h1>
 
-                                    <motion.p
-                                        initial={{ opacity: 0 }}
-                                        animate={phase >= 3 ? { opacity: 0.8 } : {}}
-                                        transition={{ delay: 0.5, duration: 1 }}
-                                        style={{
-                                            fontSize: '1.1rem',
-                                            lineHeight: 1.8,
-                                            maxWidth: '90%'
+                                    <p style={{
+                                            fontSize: '1.3rem',
+                                            lineHeight: 1.7,
+                                            maxWidth: '95%',
+                                            color: 'rgba(230, 240, 255, 0.9)',
+                                            fontWeight: 300,
+                                            textShadow: '0 0 10px rgba(0, 100, 255, 0.3)'
                                         }}
                                     >
-                                        Your subconscious structure indicates a profound readiness for transformation. The recurring motif of "Flight" suggests you are detaching from old limitations and seeking a higher vantage point.
-                                    </motion.p>
+                                        Your subconscious structure indicates a profound readiness for transformation. The recurring motif of <span style={{color:'#00ffff', fontWeight:500}}>"Flight"</span> suggests you are detaching from old limitations to embrace the unknown.
+                                    </p>
 
-                                    <div style={{ marginTop: '50px', display: 'flex', gap: '15px' }}>
+                                    <div style={{ marginTop: '60px', display: 'flex', gap: '20px' }}>
                                         {['#FREEDOM', '#CLARITY', '#ASCENSION'].map((tag, i) => (
-                                            <motion.span
+                                            <span
                                                 key={tag}
-                                                initial={{ opacity: 0, scale: 0.8 }}
-                                                animate={phase >= 3 ? { opacity: 1, scale: 1 } : {}}
-                                                transition={{ delay: 1.0 + i * 0.2 }}
                                                 style={{
-                                                    border: '1px solid rgba(170, 221, 255, 0.3)',
-                                                    background: 'rgba(170, 221, 255, 0.05)',
-                                                    padding: '8px 20px',
-                                                    borderRadius: '4px',
-                                                    fontSize: '0.8rem',
-                                                    letterSpacing: '0.1em',
-                                                    color: '#aaddff'
+                                                    border: '1px solid rgba(0, 255, 255, 0.3)',
+                                                    padding: '10px 24px',
+                                                    borderRadius: '4px', // Tech corners
+                                                    fontSize: '0.75rem',
+                                                    letterSpacing: '0.2em',
+                                                    color: '#00ffff',
+                                                    background: 'rgba(0, 255, 255, 0.05)',
+                                                    boxShadow: '0 0 15px rgba(0, 255, 255, 0.1)'
                                                 }}
                                             >
                                                 {tag}
-                                            </motion.span>
+                                            </span>
                                         ))}
                                     </div>
                                 </div>
 
-                                {/* Right: Data Viz */}
-                                <div style={{ width: '300px', borderLeft: '1px solid rgba(255,255,255,0.1)', paddingLeft: '40px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                                {/* Right: Data Viz - Floating Energy Rings */}
+                                <div style={{ 
+                                    width: '300px', 
+                                    display: 'flex', 
+                                    flexDirection: 'column', 
+                                    justifyContent: 'center',
+                                    gap: '40px' 
+                                }}>
                                     {[
-                                        { label: "LUCIDITY", val: 85 },
-                                        { label: "DEPTH", val: 92 },
-                                        { label: "CHAOS", val: 30 }
+                                        { label: "LUCIDITY", val: 85, color: '#00ffff' }, // Cyan
+                                        { label: "DEPTH", val: 92, color: '#ff00ff' },    // Magenta
+                                        { label: "CHAOS", val: 30, color: '#ffff00' }     // Yellow
                                     ].map((item, i) => (
-                                        <div key={i} style={{ marginBottom: '30px' }}>
-                                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '0.8rem', letterSpacing: '0.1em', opacity: 0.7 }}>
-                                                <span>{item.label}</span>
-                                                <span>{item.val}%</span>
+                                        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                                            {/* Ring Container */}
+                                            <div style={{ 
+                                                width: '70px', 
+                                                height: '70px', 
+                                                position: 'relative',
+                                                display: 'flex', 
+                                                alignItems: 'center', 
+                                                justifyContent: 'center' 
+                                            }}>
+                                                {/* Outer Glow Ring */}
+                                                <div style={{
+                                                    position: 'absolute',
+                                                    width: '100%',
+                                                    height: '100%',
+                                                    borderRadius: '50%',
+                                                    border: `2px solid ${item.color}`,
+                                                    opacity: 0.3,
+                                                    boxShadow: `0 0 20px ${item.color}`
+                                                }} />
+                                                
+                                                {/* Inner Value Ring (Simulated) */}
+                                                <div style={{
+                                                    position: 'absolute',
+                                                    width: `${item.val}%`,
+                                                    height: `${item.val}%`,
+                                                    borderRadius: '50%',
+                                                    border: `2px solid ${item.color}`,
+                                                    opacity: 0.8,
+                                                    boxShadow: `inset 0 0 10px ${item.color}`
+                                                }} />
+
+                                                <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'white' }}>{item.val}%</span>
                                             </div>
-                                            <div style={{ width: '100%', height: '2px', background: 'rgba(255,255,255,0.1)' }}>
-                                                <motion.div
-                                                    initial={{ width: 0 }}
-                                                    animate={phase >= 3 ? { width: `${item.val}%` } : {}}
-                                                    transition={{ duration: 1.5, delay: 0.8 + i * 0.2, ease: "easeOut" }}
-                                                    style={{ height: '100%', background: '#aaddff', boxShadow: '0 0 10px #aaddff' }}
-                                                />
+
+                                            {/* Label */}
+                                            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                                <span style={{ 
+                                                    fontSize: '0.9rem', 
+                                                    letterSpacing: '0.2em', 
+                                                    color: item.color,
+                                                    fontWeight: 600,
+                                                    textShadow: `0 0 10px ${item.color}`
+                                                }}>
+                                                    {item.label}
+                                                </span>
+                                                <div style={{ 
+                                                    width: '100px', 
+                                                    height: '2px', 
+                                                    background: `linear-gradient(90deg, ${item.color}, transparent)`,
+                                                    marginTop: '5px',
+                                                    opacity: 0.5
+                                                }} />
                                             </div>
                                         </div>
                                     ))}
@@ -221,35 +280,37 @@ export default function HolisticReport({ onBack, prismPosition }) {
             {/* Close Button (Floating below) */}
             <group position={[0, -5, 0]}>
                 <Html transform>
-                    <motion.button
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={phase >= 3 ? { opacity: 1, y: 0 } : {}}
-                        transition={{ delay: 2.0 }}
+                    <button
                         onClick={onBack}
                         style={{
-                            background: 'transparent',
-                            border: '1px solid rgba(255,255,255,0.3)',
+                            background: 'rgba(0,0,0,0.5)',
+                            border: '1px solid rgba(255,255,255,0.2)',
                             color: 'white',
-                            padding: '15px 40px',
+                            padding: '15px 50px',
                             fontFamily: 'Montserrat',
                             fontSize: '0.9rem',
-                            letterSpacing: '0.2em',
+                            letterSpacing: '0.3em',
                             cursor: 'pointer',
                             pointerEvents: 'auto',
                             textTransform: 'uppercase',
-                            transition: 'all 0.3s ease'
+                            transition: 'all 0.3s ease',
+                            backdropFilter: 'blur(5px)',
+                            borderRadius: '30px',
+                            boxShadow: '0 0 20px rgba(0, 255, 255, 0.2)'
                         }}
                         onMouseEnter={e => {
-                            e.target.style.background = 'rgba(255,255,255,0.1)'
-                            e.target.style.borderColor = 'white'
+                            e.target.style.background = 'rgba(255, 255, 255, 0.1)'
+                            e.target.style.borderColor = '#00ffff'
+                            e.target.style.boxShadow = '0 0 30px rgba(0, 255, 255, 0.5)'
                         }}
                         onMouseLeave={e => {
-                            e.target.style.background = 'transparent'
-                            e.target.style.borderColor = 'rgba(255,255,255,0.3)'
+                            e.target.style.background = 'rgba(0,0,0,0.5)'
+                            e.target.style.borderColor = 'rgba(255,255,255,0.2)'
+                            e.target.style.boxShadow = '0 0 20px rgba(0, 255, 255, 0.2)'
                         }}
                     >
-                        Close Analysis
-                    </motion.button>
+                        Close Interface
+                    </button>
                 </Html>
             </group>
         </group>

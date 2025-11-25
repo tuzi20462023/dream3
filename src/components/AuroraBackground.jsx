@@ -6,16 +6,17 @@ import vertexShader from '../shaders/auroraVertex.glsl'
 import fragmentShader from '../shaders/auroraFragment.glsl'
 import { extend } from '@react-three/fiber'
 
-// Define the shader material
+// Define the shader material with "Soul Nebula" Palette
 const AuroraMaterial = shaderMaterial(
   {
     uTime: 0,
-    uOpacity: 0.0, // Start invisible to prevent flash
+    uOpacity: 0.0,
     uResolution: new THREE.Vector2(0, 0),
-    uColor1: new THREE.Color('#1a0b2e'), // Deep Indigo
-    uColor2: new THREE.Color('#7600f5'), // Electric Violet
-    uColor3: new THREE.Color('#00eaff'), // Cyan
-    uColor4: new THREE.Color('#ff5500'), // Warm Orange
+    // Palette: Deep Indigo Base -> Electric Violet -> Deep Cyan -> Warm Peach
+    uColor1: new THREE.Color('#050014'), // Deepest Indigo (Almost Black)
+    uColor2: new THREE.Color('#4600b0'), // Deep Violet
+    uColor3: new THREE.Color('#0066cc'), // Deep Ocean Blue/Cyan
+    uColor4: new THREE.Color('#ffaa88'), // Soft Warm Peach/White Highlight
   },
   vertexShader,
   fragmentShader
@@ -23,30 +24,26 @@ const AuroraMaterial = shaderMaterial(
 
 extend({ AuroraMaterial })
 
-export default function AuroraBackground({ width = 10, height = 10, opacity = 1, ...props }) {
+export default function AuroraBackground({ width = 14, height = 8, opacity = 1, ...props }) {
   const materialRef = useRef()
-  // Current opacity for smooth interpolation
   const currentOpacity = useRef(0)
 
   useEffect(() => {
-    // Reset internal opacity on mount if needed
     currentOpacity.current = 0
   }, [])
 
   useFrame((state, delta) => {
     if (materialRef.current) {
       materialRef.current.uTime += delta
-      
-      // Smoothly lerp opacity
-      // Slower lerp (0.5) for very gentle fade-in
-      currentOpacity.current = THREE.MathUtils.lerp(currentOpacity.current, opacity, delta * 0.5)
+      currentOpacity.current = THREE.MathUtils.lerp(currentOpacity.current, opacity, delta * 0.8)
       materialRef.current.uOpacity = currentOpacity.current
     }
   })
 
   return (
     <mesh {...props}>
-      <planeGeometry args={[width, height, 32, 32]} />
+      {/* Plane must be larger than the glass to accommodate the vignette fade */}
+      <planeGeometry args={[width * 1.2, height * 1.2, 64, 64]} /> 
       <auroraMaterial 
         ref={materialRef} 
         transparent 

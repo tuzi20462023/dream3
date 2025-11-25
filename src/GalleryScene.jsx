@@ -260,22 +260,11 @@ const GalleryScene = ({ onBack, dreams }) => {
     setTimeout(() => {
       setViewMode('analysis')
       setCharging(false)
-    }, 1800) // Immediate transition: Absorb(1s) -> Glow/Panel(0.8s)
+    }, 3000) // Shortened ritual: 3 seconds
   }
 
   return (
     <div style={{ width: '100vw', height: '100vh', background: '#050505' }}>
-
-      {/* Darken Overlay for Analysis Mode */}
-      <div style={{
-        position: 'absolute',
-        top: 0, left: 0, width: '100%', height: '100%',
-        background: 'rgba(0,0,0,0.85)',
-        pointerEvents: 'none',
-        opacity: viewMode === 'analysis' ? 1 : 0,
-        transition: 'opacity 1s ease',
-        zIndex: 5
-      }} />
 
       <Canvas
         camera={{ position: [0, 0, 10], fov: 45 }}
@@ -303,9 +292,9 @@ const GalleryScene = ({ onBack, dreams }) => {
           <Bloom luminanceThreshold={0.2} mipmapBlur intensity={0.8} radius={0.6} />
           <Vignette eskil={false} offset={0.1} darkness={1.1} />
           <DepthOfField 
-            target={[0, 0, viewMode === 'analysis' ? -10 : 0]} // Focus on Report (-10) or Center (0)
+            target={[0, 0, viewMode === 'analysis' ? -10 : 0]} 
             focalLength={0.02} 
-            bokehScale={viewMode === 'analysis' || charging ? 8 : 2} 
+            bokehScale={viewMode === 'analysis' ? 5 : 0} // No blur during charging, moderate blur in analysis
             height={480} 
           />
         </EffectComposer>

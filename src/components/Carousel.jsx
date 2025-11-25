@@ -45,9 +45,9 @@ function DustBeam({ start, end, active }) {
             pointsRef.current.material.uniforms.uTime.value += delta
 
             // Fade out logic: 
-            // 0s - 1.0s: Full Opacity
-            // 1.0s - 1.5s: Fade to 0
-            const fadeStart = 1.0
+            // 0s - 2.5s: Full Opacity
+            // 2.5s - 3.0s: Fade to 0
+            const fadeStart = 2.5
             const fadeDuration = 0.5
             let opacity = 1.0
 
@@ -194,7 +194,8 @@ function CarouselItem({ dream, index, scrollOffset, totalItems, onClick, onHover
         const targetZ = targetBaseZ + curveZ
 
         // Lerp to target Z for smooth retreat
-        group.current.position.z = THREE.MathUtils.lerp(group.current.position.z, targetZ, delta * 2)
+        // Faster retreat for 3s ritual
+        group.current.position.z = THREE.MathUtils.lerp(group.current.position.z, targetZ, delta * 1.5)
 
         // 3. Scale
         const targetScale = THREE.MathUtils.lerp(0.9, 0.6, Math.min(Math.abs(dist) * 0.1, 1))
