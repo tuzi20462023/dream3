@@ -180,8 +180,24 @@ const DreamParticles = ({ appState, dreamData, isGalleryItem = false }) => {
     }, [effectiveDensity])
 
     const materialRef = useRef()
+    const geometryRef = useRef()
     const mouse = useRef(new THREE.Vector2(0, 0))
     const { viewport } = useThree()
+
+    // Cleanup resources on unmount to prevent WebGL context loss
+    useEffect(() => {
+        return () => {
+            // Dispose geometry
+            if (geometryRef.current) {
+                geometryRef.current.dispose()
+            }
+            // Dispose material
+            if (materialRef.current) {
+                materialRef.current.dispose()
+            }
+            // Note: useTexture handles texture disposal internally with caching
+        }
+    }, [])
 
     useFrame((state, delta) => {
         if (materialRef.current) {
@@ -248,7 +264,7 @@ const DreamParticles = ({ appState, dreamData, isGalleryItem = false }) => {
             onPointerMove={handlePointerMove}
             onPointerLeave={handlePointerLeave}
         >
-            <bufferGeometry>
+            <bufferGeometry ref={geometryRef}>
                 <bufferAttribute
                     attach="attributes-position"
                     count={particles.positions.length / 3}
