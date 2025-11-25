@@ -27,6 +27,7 @@ export default function InputInterface({ appState, setAppState, onDreamGenerated
   const [isRecording, setIsRecording] = useState(false)
   const [localDreamData, setLocalDreamData] = useState(null) // Keep local copy for display
   const cardRef = useRef(null)
+  const isProcessingRef = useRef(false) // Track processing state synchronously
 
   const handleRecord = () => {
     setIsRecording(!isRecording)
@@ -68,10 +69,15 @@ export default function InputInterface({ appState, setAppState, onDreamGenerated
   }
 
   const generateDream = async (text) => {
-    // Prevent multiple simultaneous requests
-    if (appState === 'processing') return
+    // Prevent multiple simultaneous requests using ref (synchronous check)
+    if (isProcessingRef.current) {
+      console.log('Already processing, ignoring request')
+      return
+    }
 
+    isProcessingRef.current = true
     setAppState('processing')
+
     try {
       const data = await generateMockDream(text)
       // Update dream data and notify parent
@@ -85,6 +91,9 @@ export default function InputInterface({ appState, setAppState, onDreamGenerated
       } else {
         setAppState('input')
       }
+    } finally {
+      // Always reset processing flag
+      isProcessingRef.current = false
     }
   }
 
@@ -96,8 +105,15 @@ export default function InputInterface({ appState, setAppState, onDreamGenerated
 
   const handleRegenerate = () => {
     // Prevent regenerate if already processing or no previous input
-    if (appState === 'processing' || !localDreamData?.inputText) return
+    if (isProcessingRef.current || !localDreamData?.inputText) {
+      console.log('Cannot regenerate:', {
+        isProcessing: isProcessingRef.current,
+        hasInputText: !!localDreamData?.inputText
+      })
+      return
+    }
 
+    console.log('Regenerating with input:', localDreamData.inputText)
     generateDream(localDreamData.inputText)
   }
 
@@ -208,13 +224,13 @@ export default function InputInterface({ appState, setAppState, onDreamGenerated
                 <motion.button
                     className="secondary-btn"
                     onClick={handleRegenerate}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.95 }}
+                    whileHover={!isProcessingRef.current ? { scale: 1.02 } : {}}
+                    whileTap={!isProcessingRef.current ? { scale: 0.95 } : {}}
                     title="Regenerate"
-                    disabled={appState === 'processing'}
                     style={{
                       opacity: appState === 'processing' ? 0.5 : 1,
-                      cursor: appState === 'processing' ? 'not-allowed' : 'pointer'
+                      cursor: appState === 'processing' ? 'not-allowed' : 'pointer',
+                      pointerEvents: appState === 'processing' ? 'none' : 'auto'
                     }}
                 >
                     <RefreshIcon />
