@@ -40,8 +40,11 @@ extend({ ParticleMaterial })
 const DreamParticles = ({ appState, dreamData, isGalleryItem = false }) => {
     // Default placeholder texture
     const defaultUrl = 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=800&q=80'
-    // Use texture from dreamData if available, otherwise default
-    const textureUrl = dreamData?.imageUrl || defaultUrl
+    
+    // Logic update: Only switch to the dream texture when we are actually immersed or viewing from gallery.
+    // In 'preview' mode, we want to keep the default background nebula to avoid "spoiling" the result.
+    const showDreamTexture = (appState === 'immersed' || isGalleryItem) && dreamData?.imageUrl
+    const textureUrl = showDreamTexture ? dreamData.imageUrl : defaultUrl
 
     // Load texture (preloaded in mockDreamGenerator, so should always work)
     const texture = useTexture(textureUrl)
@@ -123,9 +126,10 @@ const DreamParticles = ({ appState, dreamData, isGalleryItem = false }) => {
             targetOpacity.current = controls.opacity;
             targetDispersion.current = controls.dispersion;
         } else if (appState === 'preview') {
-            // In preview mode (card view), hide particles to avoid visual clash
-            targetOpacity.current = 0.0;
-            targetDispersion.current = 0.8;
+            // In preview mode, show a subtle background nebula (lower opacity, default dispersion)
+            // This uses the current texture (either default or dreamData-specific, if already loaded)
+            targetOpacity.current = 0.2; // Subtle opacity
+            targetDispersion.current = 0.8; // Use default dispersion for HD look
         } else {
             // In input/processing mode, restore original subtle background
             targetOpacity.current = 0.6;
@@ -160,7 +164,7 @@ const DreamParticles = ({ appState, dreamData, isGalleryItem = false }) => {
                 // Center the plane
                 const x = (u - 0.5) * 10 // Width 10
                 const y = (v - 0.5) * 10 // Height 10
-                const z = 0
+                const z = -3 // Move particles slightly closer along the Z-axis
 
                 positions[index * 3] = x
                 positions[index * 3 + 1] = y
@@ -195,7 +199,7 @@ const DreamParticles = ({ appState, dreamData, isGalleryItem = false }) => {
             // Lerp current values towards targets
 
             // Dynamic speed: Slow fade-in for immersed state, fast for others
-            let lerpSpeed = 2.0 * delta;
+            let lerpSpeed = 3.0 * delta;
             if (appState === 'immersed' && materialRef.current.uOpacity < targetOpacity.current) {
                 lerpSpeed = 0.3 * delta; // Very slow fade-in (approx 3-4 seconds to full)
             }

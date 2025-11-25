@@ -10,7 +10,6 @@ import { dreams as initialDreams } from './data/dreams'
 function App() {
   const [appState, setAppState] = useState('input') // input, processing, preview, immersed, gallery
   const [dreamData, setDreamData] = useState(null)
-  const [transitionData, setTransitionData] = useState(null)
   const [galleryDreams, setGalleryDreams] = useState(initialDreams)
 
   const handleDreamGenerated = (data) => {
@@ -18,8 +17,7 @@ function App() {
     setAppState('preview')
   }
 
-  const handleEnterDream = (data) => {
-    setTransitionData(data)
+  const handleEnterDream = () => {
     setAppState('immersed')
 
     // Add to gallery if we have valid dream data
@@ -37,14 +35,15 @@ function App() {
     }
   }
 
-  const handleTransitionComplete = () => {
-    setTransitionData(null)
-  }
-
   return (
     <>
       {appState === 'gallery' ? (
-        <GalleryScene onBack={() => setAppState('input')} dreams={galleryDreams} />
+        <GalleryScene 
+            onBack={() => {
+                setAppState('input')
+            }} 
+            dreams={galleryDreams} 
+        />
       ) : (
         <>
           <Leva
@@ -79,8 +78,6 @@ function App() {
           <Scene
             appState={appState}
             dreamData={dreamData}
-            transitionData={transitionData}
-            onTransitionComplete={handleTransitionComplete}
           />
         </Suspense>
       </Canvas>

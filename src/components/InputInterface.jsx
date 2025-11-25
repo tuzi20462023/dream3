@@ -40,32 +40,9 @@ export default function InputInterface({ appState, setAppState, onDreamGenerated
   }
 
   const handleEnter = async () => {
-    if (!cardRef.current) return
-
-    // Capture the card visually
-    try {
-      const canvas = await html2canvas(cardRef.current, {
-        backgroundColor: null, // Transparent background
-        scale: 2, // Retain high quality
-        logging: false,
-        useCORS: true // Important for external images
-      })
-
-      const rect = cardRef.current.getBoundingClientRect()
-      const textureData = canvas.toDataURL('image/png')
-
-      onEnterDream({
-        texture: textureData,
-        x: rect.left,
-        y: rect.top,
-        width: rect.width,
-        height: rect.height
-      })
-    } catch (err) {
-      console.error("Failed to capture dream card:", err)
-      // Fallback if capture fails
-      onEnterDream(null)
-    }
+    // Simply enter the dream state
+    // No visual capture needed as we are using a direct particle fade-in
+    onEnterDream()
   }
 
   const generateDream = async (text) => {
@@ -205,10 +182,15 @@ export default function InputInterface({ appState, setAppState, onDreamGenerated
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 1.1, filter: "blur(20px)" }}
-            transition={{ duration: 0.8, ease: [0.19, 1, 0.22, 1] }}
+            transition={{ duration: 1.5, ease: [0.19, 1, 0.22, 1] }}
           >
             <div className="preview-image-container">
-              <img src={localDreamData.imageUrl} alt="Dream visualization" className="preview-image" crossOrigin="anonymous" />
+              <img 
+                src={`${localDreamData.imageUrl}${localDreamData.imageUrl.includes('?') ? '&' : '?'}t=${Date.now()}`} 
+                alt="Dream visualization" 
+                className="preview-image" 
+                crossOrigin="anonymous" 
+              />
               <div className="overlay-gradient"></div>
             </div>
 

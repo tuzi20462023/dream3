@@ -9,72 +9,59 @@ const vertexShader = `
   varying vec2 vUv;
   varying float vNoise;
   varying float vAlpha;
-  varying float vLife;
 
-  // Pseudo-random function
   float random(vec2 st) {
       return fract(sin(dot(st.xy, vec2(12.9898,78.233))) * 43758.5453123);
   }
 
   void main() {
     vUv = uv;
-    
     vec3 pos = position;
     
-    // Calculate noise
-    float noiseVal = random(uv + 0.1); 
+    // Noise
+    float noiseVal = random(uv + 0.1);
     vNoise = noiseVal;
 
-    // Organic Dissolve & Diffusion
-    // No spirals, no tunnels. Just pure, elegant entropy.
+    // 1. Initial "Loose" State (Base Jitter)
+    // Significantly increased to break the "square" shape completely
+    float jitterAmp = 0.8; // Doubled jitter to scatter particles beyond card bounds
+    pos.x += (random(uv + 0.2) - 0.5) * jitterAmp; 
+    pos.y += (random(uv + 0.3) - 0.5) * jitterAmp;
+    pos.z += (random(uv + 0.4) - 0.5) * 6.0; // Even deeper Z jitter
+
+    // 2. Explosion Logic
+    // Use standard smoothstep for elegant, linear drift
+    float localProgress = smoothstep(0.0, 1.0, uProgress);
     
-    float startDelay = noiseVal * 0.3; // More varied start times
-    float localProgress = smoothstep(startDelay, 1.0, uProgress);
-
     if (localProgress > 0.0) {
-        float t = localProgress;
+        // Expansion direction: Radial from center + Random bias
+        // Use raw position for direction to keep it natural
+        vec3 dir = normalize(pos); 
         
-        // 1. Initial Explosion (The "Pop")
-        // Moves outward from center, but not too far initially
-        vec3 centerDir = normalize(pos); // Direction from center
-        // If pos is (0,0,0) handle it
-        if (length(pos) < 0.001) centerDir = vec3(0.0, 0.0, 1.0);
+        // Add random variation to direction so they don't all travel in straight lines
+        dir.x += (noiseVal - 0.5) * 0.5;
+        dir.y += (noiseVal - 0.5) * 0.5;
+        dir = normalize(dir);
 
-        // 2. Drift (The "Cloud")
-        // Particles drift based on their original UVs + Noise
-        // This preserves the "shape" slightly while expanding, like smoke
+        // Explosion distance
+        float dist = localProgress * 20.0; // Wide explosion
         
-        float expansion = t * t * 40.0; // Wide expansion
-        
-        // Pure radial expansion + random scatter
-        pos.x += (uv.x - 0.5) * expansion;
-        pos.y += (uv.y - 0.5) * expansion;
-        
-        // Add organic turbulence
-        // Use sin/cos with different frequencies to create "eddies" without global rotation
-        float turbulence = t * 10.0;
-        pos.x += sin(uv.y * 10.0 + uTime) * turbulence * noiseVal;
-        pos.y += cos(uv.x * 10.0 + uTime) * turbulence * noiseVal;
-        
-        // Z-Axis: Depth without "Tunnel"
-        // Particles drift forward/backward randomly to create volume
-        pos.z += (noiseVal - 0.5) * expansion * 2.0; 
+        // Linear movement without curl
+        pos += dir * dist * noiseVal;
     }
 
     vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
     gl_Position = projectionMatrix * mvPosition;
     
-    // Size attenuation
-    // Start slightly larger, then shrink to dust
-    float baseSize = 4.0; 
-    float twinkle = 1.0 + sin(uTime * 15.0 + noiseVal * 100.0) * 0.5; 
+    // 3. Particle Size
+    // Start large, shrink over time
+    float baseSize = 5.0; // Smaller base size
+    float sizeFade = 1.0 - localProgress * 0.5; // Fade size slower
+    gl_PointSize = baseSize * sizeFade * (50.0 / -mvPosition.z);
     
-    gl_PointSize = baseSize * twinkle * (1.0 - localProgress * 0.3) * (50.0 / -mvPosition.z);
-    
-    // Fade alpha
-    // Smooth fade out as they drift away
+    // 4. Alpha Fade
+    // Start fading later, end later (keep visible longer)
     vAlpha = 1.0 - smoothstep(0.5, 1.5, localProgress);
-    vLife = 1.0 - localProgress;
   }
 `
 
@@ -95,13 +82,19 @@ const fragmentShader = `
     // Soft core
     float core = 1.0 - smoothstep(0.0, 0.5, dist);
     
-    // Color grading: Keep it natural but ethereal
+    // Color grading
     vec3 finalColor = texColor.rgb;
     
-    // Add subtle shimmer based on noise
-    finalColor += vec3(0.2) * vNoise;
+    // Add shimmer
+    finalColor += vec3(0.3) * vNoise; // Increased shimmer
 
-    gl_FragColor = vec4(finalColor, texColor.a * vAlpha * 0.8); 
+    // CRITICAL FIX: Boost alpha
+    // The source texture might be a transparent glass card.
+    // We overwrite the texture alpha to ensure particles are visible.
+    // Use the texture's luminance to keep text brighter if needed, but ensure base visibility.
+    float baseAlpha = 0.8; 
+    
+    gl_FragColor = vec4(finalColor, baseAlpha * vAlpha); 
   }
 `
 
@@ -111,7 +104,13 @@ const DissolveEffect = ({ transitionData, onComplete }) => {
 
   // Load the captured texture
   const texture = useMemo(() => {
-    if (!transitionData?.texture) return null
+    if (!transitionData?.texture) {
+        // Fallback: Create a 1x1 white pixel texture if capture failed
+        const data = new Uint8Array([255, 255, 255, 255]);
+        const tex = new THREE.DataTexture(data, 1, 1, THREE.RGBAFormat);
+        tex.needsUpdate = true;
+        return tex;
+    }
     return new THREE.TextureLoader().load(transitionData.texture)
   }, [transitionData])
 
@@ -147,7 +146,7 @@ const DissolveEffect = ({ transitionData, onComplete }) => {
 
     // Generate Particle Geometry
     // High density for "Dust" look
-    const density = 150
+    const density = 80
     const count = density * density
     const positions = new Float32Array(count * 3)
     const uvs = new Float32Array(count * 2)
@@ -190,7 +189,7 @@ const DissolveEffect = ({ transitionData, onComplete }) => {
     if (pointsRef.current) {
       // Animate progress
       // Elegant, slow speed
-      const speed = 0.5
+      const speed = 0.2
       pointsRef.current.material.uniforms.uProgress.value += delta * speed
       pointsRef.current.material.uniforms.uTime.value += delta
 

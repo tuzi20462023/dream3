@@ -281,14 +281,7 @@ function FloatingLabel({ text, position, delay, align = 'left' }) {
 
 export default function HolisticReport({ onBack, prismPosition }) {
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
-    const [mounted, setMounted] = useState(false)
     const { viewport } = useThree()
-
-    // Track mount state to ensure animations play
-    useEffect(() => {
-        setMounted(true)
-        return () => setMounted(false)
-    }, [])
 
     // Track mouse for interaction
     useEffect(() => {
@@ -319,12 +312,12 @@ export default function HolisticReport({ onBack, prismPosition }) {
                             <motion.div
                                 key="title-text"
                                 initial={{ opacity: 0, y: 40, filter: 'blur(10px)' }}
-                                animate={mounted ? {
+                                animate={{
                                     opacity: 1,
                                     y: 0,
                                     filter: 'blur(0px)',
                                     textShadow: ['0 0 40px rgba(0,0,0,0.8)', '0 0 50px rgba(0,0,0,0.8)'] // Dark pulsing shadow backing
-                                } : {}}
+                                }}
                                 transition={{
                                     duration: 3, // Slow, majestic entry
                                     delay: 0.5,
@@ -358,7 +351,7 @@ export default function HolisticReport({ onBack, prismPosition }) {
                             <motion.div
                                 key="description-text"
                                 initial={{ opacity: 0, x: 20 }}
-                                animate={mounted ? { opacity: 0.9, x: 0 } : {}}
+                                animate={{ opacity: 0.9, x: 0 }}
                                 transition={{ duration: 2.5, delay: 1.0, ease: "easeOut" }}
                                 style={{ 
                                     width: '350px', 
@@ -388,7 +381,7 @@ export default function HolisticReport({ onBack, prismPosition }) {
                             <motion.button
                                 key="close-button"
                                 initial={{ opacity: 0 }}
-                                animate={mounted ? { opacity: 0.7 } : {}}
+                                animate={{ opacity: 0.7 }}
                                 whileHover={{ opacity: 1, scale: 1.1, letterSpacing: '0.4em', textShadow: '0 0 20px white' }}
                                 transition={{ duration: 2, delay: 2.5 }}
                                 onClick={onBack}

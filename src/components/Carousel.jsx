@@ -152,8 +152,8 @@ function CarouselItem({ dream, index, scrollOffset, totalItems, onClick, onHover
 
     // Configuration
     const spacing = 12
-    const baseZ = -18
-    const retreatZ = -25 // Retreat position when charging
+    const baseZ = -8
+    const retreatZ = -15 // Retreat position when charging
 
     // Track previous offset to calculate directional velocity
     const lastOffset = useRef(scrollOffset.offset)
