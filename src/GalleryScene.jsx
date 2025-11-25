@@ -183,12 +183,6 @@ function SoulPrismHUD({ viewMode, setViewMode, prismRef, charging, onClick }) {
         onClick={onClick}
       />
 
-      {/* The Report spawns from the Prism */}
-      <AnimatePresence>
-        {showReport && (
-          <HolisticReport onBack={() => setViewMode('timeline')} />
-        )}
-      </AnimatePresence>
     </group>
   )
 }
@@ -298,10 +292,22 @@ const GalleryScene = ({ onBack, dreams }) => {
           onClick={handlePrismClick}
         />
 
+        {/* Centered Holistic Report */}
+        <AnimatePresence>
+          {viewMode === 'analysis' && (
+            <HolisticReport onBack={() => setViewMode('timeline')} />
+          )}
+        </AnimatePresence>
+
         <EffectComposer disableNormalPass>
           <Bloom luminanceThreshold={0.2} mipmapBlur intensity={0.8} radius={0.6} />
           <Vignette eskil={false} offset={0.1} darkness={1.1} />
-          <DepthOfField focusDistance={0} focalLength={0.02} bokehScale={viewMode === 'analysis' ? 10 : 2} height={480} />
+          <DepthOfField 
+            target={[0, 0, viewMode === 'analysis' ? -10 : 0]} // Focus on Report (-10) or Center (0)
+            focalLength={0.02} 
+            bokehScale={viewMode === 'analysis' || charging ? 8 : 2} 
+            height={480} 
+          />
         </EffectComposer>
 
         {/* Carousel Logic with Volumetric Inspection */}
