@@ -263,10 +263,11 @@ const GalleryScene = ({ onBack, dreams }) => {
     }, 3000) // Shortened ritual: 3 seconds
   }
 
-  return (
-    <div style={{ width: '100vw', height: '100vh', background: '#050505' }}>
+      return (
 
-      <Canvas
+          <div style={{ width: '100vw', height: '100vh', background: '#050810' }}> {/* Deeper indigo base */}
+
+              <Canvas
         camera={{ position: [0, 0, 10], fov: 45 }}
         dpr={[1, 2]}
         gl={{ antialias: false, alpha: false, toneMapping: THREE.ReinhardToneMapping, toneMappingExposure: 1.5 }}

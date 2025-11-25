@@ -47,7 +47,7 @@ export default function AuroraBackground({ width = 14, height = 8, opacity = 1, 
       <auroraMaterial 
         ref={materialRef} 
         transparent 
-        blending={THREE.AdditiveBlending} 
+        blending={THREE.NormalBlending} 
         depthWrite={false}
       />
     </mesh>
