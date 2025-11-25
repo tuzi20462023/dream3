@@ -160,9 +160,10 @@ void main() {
 function SoulCloud({ mousePos }) {
     const meshRef = useRef()
     const materialRef = useRef()
-    
+    const geometryRef = useRef()
+
     // Generate Particles
-    const particleCount = 3500 // Reduced for better performance and less lag
+    const particleCount = 1500 // Optimized to prevent WebGL context loss while keeping visual effect
     const { positions, sizes, speeds, randoms } = useMemo(() => {
         const positions = []
         const sizes = []
@@ -213,9 +214,25 @@ function SoulCloud({ mousePos }) {
         uHover: { value: 0 }
     }), [])
 
+    // Cleanup resources on unmount
+    useEffect(() => {
+        return () => {
+            if (geometryRef.current) {
+                Object.keys(geometryRef.current.attributes).forEach(key => {
+                    geometryRef.current.attributes[key].array = null
+                })
+                geometryRef.current.dispose()
+            }
+            if (materialRef.current) {
+                materialRef.current.dispose()
+            }
+            console.log('[SoulCloud] Resources cleaned up')
+        }
+    }, [])
+
     return (
         <points ref={meshRef}>
-            <bufferGeometry>
+            <bufferGeometry ref={geometryRef}>
                 <bufferAttribute attach="attributes-position" args={[positions, 3]} />
                 <bufferAttribute attach="attributes-aSize" args={[sizes, 1]} />
                 <bufferAttribute attach="attributes-aSpeed" args={[speeds, 1]} />

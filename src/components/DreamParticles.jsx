@@ -138,9 +138,9 @@ const DreamParticles = ({ appState, dreamData, isGalleryItem = false }) => {
     }, [appState, controls.opacity, controls.dispersion, isGalleryItem])
 
     // Determine effective density
-    // If gallery item, use lower density for performance (e.g. 128x128 = 16k particles)
+    // If gallery item, use lower density for performance (64x64 = 4k particles per card)
     // Otherwise use the Leva control value (default 400x400 = 160k particles)
-    const effectiveDensity = isGalleryItem ? 128 : controls.density
+    const effectiveDensity = isGalleryItem ? 64 : controls.density
 
     // Generate particles
     const particles = useMemo(() => {
@@ -187,8 +187,12 @@ const DreamParticles = ({ appState, dreamData, isGalleryItem = false }) => {
     // Cleanup resources on unmount to prevent WebGL context loss
     useEffect(() => {
         return () => {
-            // Dispose geometry
+            // Dispose geometry and all its attributes
             if (geometryRef.current) {
+                // Dispose all buffer attributes
+                Object.keys(geometryRef.current.attributes).forEach(key => {
+                    geometryRef.current.attributes[key].array = null
+                })
                 geometryRef.current.dispose()
             }
             // Dispose material
@@ -196,6 +200,7 @@ const DreamParticles = ({ appState, dreamData, isGalleryItem = false }) => {
                 materialRef.current.dispose()
             }
             // Note: useTexture handles texture disposal internally with caching
+            console.log('[DreamParticles] Resources cleaned up')
         }
     }, [])
 
