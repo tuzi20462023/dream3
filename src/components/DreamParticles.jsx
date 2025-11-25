@@ -122,10 +122,14 @@ const DreamParticles = ({ appState, dreamData, isGalleryItem = false }) => {
         } else if (isGalleryItem) {
             targetOpacity.current = controls.opacity;
             targetDispersion.current = controls.dispersion;
+        } else if (appState === 'preview') {
+            // In preview mode (card view), hide particles to avoid visual clash
+            targetOpacity.current = 0.0;
+            targetDispersion.current = 0.8;
         } else {
-            // In input/preview mode, keep particles subtle in background
+            // In input/processing mode, restore original subtle background
             targetOpacity.current = 0.6;
-            targetDispersion.current = 0.8; // Use default dispersion for HD look
+            targetDispersion.current = 0.8;
         }
 
         return () => {

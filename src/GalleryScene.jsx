@@ -251,6 +251,7 @@ const GalleryScene = ({ onBack, dreams }) => {
   const [charging, setCharging] = useState(false)
   const activeDreams = dreams || staticDreams
   const prismRef = useRef()
+  const analysisKeyRef = useRef(0) // Counter for unique keys
 
   const handlePrismClick = () => {
     if (charging) return
@@ -258,6 +259,7 @@ const GalleryScene = ({ onBack, dreams }) => {
 
     // Charge and transition
     setTimeout(() => {
+      analysisKeyRef.current += 1 // Increment counter for fresh component
       setViewMode('analysis')
       setCharging(false)
     }, 3000) // Shortened ritual: 3 seconds
@@ -285,7 +287,7 @@ const GalleryScene = ({ onBack, dreams }) => {
         {/* Centered Holistic Report */}
         <AnimatePresence mode="wait">
           {viewMode === 'analysis' && (
-            <HolisticReport key="holistic-report" onBack={() => setViewMode('timeline')} />
+            <HolisticReport key={`holistic-report-${analysisKeyRef.current}`} onBack={() => setViewMode('timeline')} />
           )}
         </AnimatePresence>
 
