@@ -43,12 +43,19 @@ const DreamParticles = ({ appState, dreamData, isGalleryItem = false }) => {
     // Use texture from dreamData if available, otherwise default
     const textureUrl = dreamData?.imageUrl || defaultUrl
 
-    // Load texture
-    const texture = useTexture(textureUrl)
+    // Load texture with error handling
+    let texture;
+    try {
+        texture = useTexture(textureUrl)
+    } catch (err) {
+        console.error('Failed to load texture:', textureUrl, err);
+        // Fallback to default if texture load fails
+        texture = useTexture(defaultUrl)
+    }
 
     // Update texture when url changes
     useEffect(() => {
-        if (materialRef.current) {
+        if (materialRef.current && texture) {
             materialRef.current.uTexture = texture
         }
     }, [texture])

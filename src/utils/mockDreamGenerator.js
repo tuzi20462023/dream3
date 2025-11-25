@@ -25,11 +25,7 @@ const MOCK_TEMPLATES = [
 ];
 
 export const generateMockDream = async (inputText) => {
-  // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 1500 + Math.random() * 1000));
-
-  // Pick random image (in a real app, this would depend on input)
-  // We use a simple hash of input to make it semi-deterministic or just random
+  // Pick random image first
   const imageIndex = Math.floor(Math.random() * MOCK_IMAGES.length);
   const imageUrl = MOCK_IMAGES[imageIndex];
 
@@ -41,8 +37,35 @@ export const generateMockDream = async (inputText) => {
   const analysisIndex = Math.floor(Math.random() * MOCK_TEMPLATES.length);
   const analysis = MOCK_TEMPLATES[analysisIndex];
 
-  // Return direct URL to avoid blob URL memory leaks
-  // Blob URLs were causing "Could not load blob" errors and WebGL context loss
+  // Pre-load image to prevent black screen
+  // Wait for image to be fully loaded before returning
+  await new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+
+    let timeout = setTimeout(() => {
+      console.warn('Image load timeout, using anyway:', imageUrl);
+      resolve(); // Still resolve to prevent infinite loading
+    }, 5000); // 5 second timeout
+
+    img.onload = () => {
+      clearTimeout(timeout);
+      console.log('Image loaded successfully:', imageUrl);
+      resolve();
+    };
+
+    img.onerror = (err) => {
+      clearTimeout(timeout);
+      console.error('Image load error:', imageUrl, err);
+      resolve(); // Resolve anyway, let drei handle the error
+    };
+
+    img.src = imageUrl;
+  });
+
+  // Add minimum delay for UX (simulate "processing")
+  await new Promise(resolve => setTimeout(resolve, 800));
+
   return {
     imageUrl,
     keywords,
