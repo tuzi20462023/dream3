@@ -266,7 +266,7 @@ const GalleryScene = ({ onBack, dreams }) => {
     setTimeout(() => {
       setViewMode('analysis')
       setCharging(false)
-    }, 1000)
+    }, 3000) // 3s for full 3-stage animation sequence
   }
 
   return (
@@ -315,7 +315,12 @@ const GalleryScene = ({ onBack, dreams }) => {
           >
             <WorldGroup>
               <Stardust />
-              <Carousel dreams={activeDreams} onSelectDream={setSelectedDream} />
+              <Carousel
+                dreams={activeDreams}
+                onSelectDream={setSelectedDream}
+                charging={charging}
+                prismRef={prismRef}
+              />
             </WorldGroup>
           </ScrollControls>
         )}
