@@ -4,6 +4,8 @@ import { Html, Float, MeshTransmissionMaterial, Text } from '@react-three/drei'
 import * as THREE from 'three'
 import { motion } from 'framer-motion'
 
+import HolographicBeliefMap from './HolographicBeliefMap'
+
 export default function HolisticReport({ onBack, prismPosition }) {
     const groupRef = useRef()
 
@@ -19,12 +21,23 @@ export default function HolisticReport({ onBack, prismPosition }) {
 
     return (
         <group ref={groupRef} position={startPos}>
+            {/* Holographic Map Background */}
+            <motion.group
+                initial={{ opacity: 0, scale: 0.5 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 2, delay: 0.5 }}
+                position={[0, 2, -3]} // Positioned behind and slightly above center
+            >
+                <HolographicBeliefMap />
+            </motion.group>
+
             {/* 向上展开的动画容器 */}
             <motion.group
                 initial={{ scale: 0, y: -5 }}
                 animate={{ scale: 0.8, y: 4 }} // 最终悬浮在棱镜上方 4 单位
                 transition={{ type: "spring", stiffness: 50, damping: 15, delay: 0.2 }}
             >
+                {/* ... existing Float and Glass Panel ... */}
                 <Float speed={2} rotationIntensity={0.1} floatIntensity={0.2}>
 
                     {/* 3D 玻璃基座 (Monolith) */}

@@ -266,7 +266,7 @@ const GalleryScene = ({ onBack, dreams }) => {
     setTimeout(() => {
       setViewMode('analysis')
       setCharging(false)
-    }, 3000) // 3s for full 3-stage animation sequence
+    }, 1800) // Immediate transition: Absorb(1s) -> Glow/Panel(0.8s)
   }
 
   return (

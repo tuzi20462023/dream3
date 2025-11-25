@@ -7,6 +7,7 @@ import DreamParticles from "./DreamParticles";
 // Organic Dust Beam Component
 function DustBeam({ start, end, active }) {
     const pointsRef = useRef()
+    const timeActive = useRef(0)
 
     // Generate particles along the path
     const { positions, randomness } = useMemo(() => {
@@ -34,9 +35,27 @@ function DustBeam({ start, end, active }) {
     }, [start, end])
 
     useFrame((state, delta) => {
-        if (!active) return
+        if (!active) {
+            timeActive.current = 0
+            return
+        }
+        timeActive.current += delta
+
         if (pointsRef.current) {
             pointsRef.current.material.uniforms.uTime.value += delta
+
+            // Fade out logic: 
+            // 0s - 1.0s: Full Opacity
+            // 1.0s - 1.5s: Fade to 0
+            const fadeStart = 1.0
+            const fadeDuration = 0.5
+            let opacity = 1.0
+
+            if (timeActive.current > fadeStart) {
+                opacity = 1.0 - Math.min((timeActive.current - fadeStart) / fadeDuration, 1.0)
+            }
+
+            pointsRef.current.material.uniforms.uGlobalOpacity.value = opacity
         }
     })
 
@@ -66,7 +85,8 @@ function DustBeam({ start, end, active }) {
                     uTime: { value: 0 },
                     uColor: { value: new THREE.Color('#bfeeff') }, // Paler, dusty blue
                     uStart: { value: start },
-                    uEnd: { value: end }
+                    uEnd: { value: end },
+                    uGlobalOpacity: { value: 1.0 }
                 }}
                 vertexShader={`
                     uniform float uTime;
@@ -77,19 +97,11 @@ function DustBeam({ start, end, active }) {
                     
                     void main() {
                         // Calculate progress along the line based on time and original position
-                        // We use the vertex index (implicitly via position) or just re-calculate t
-                        
-                        // Simple linear interpolation logic in shader is hard without attribute 't'
-                        // Let's assume 'position' is the static path, and we animate OFFSETS
                         
                         float t = distance(position, uStart) / distance(uStart, uEnd);
                         
                         // Flow animation: particles move from start to end
                         float flowSpeed = 1.5;
-                        float cycle = fract(t - uTime * flowSpeed); // 0 to 1 moving towards end? 
-                        // Actually we want them to move from 0 to 1. 
-                        // fract(t + uTime) moves backwards if t is 0..1. 
-                        // Let's use a flowing phase.
                         
                         float phase = fract(t + uTime * 0.5); 
                         
@@ -113,6 +125,7 @@ function DustBeam({ start, end, active }) {
                 `}
                 fragmentShader={`
                     uniform vec3 uColor;
+                    uniform float uGlobalOpacity;
                     varying float vAlpha;
                     
                     void main() {
@@ -123,7 +136,7 @@ function DustBeam({ start, end, active }) {
                         
                         float core = 1.0 - smoothstep(0.0, 0.5, dist);
                         
-                        gl_FragColor = vec4(uColor, vAlpha * core * 0.8);
+                        gl_FragColor = vec4(uColor, vAlpha * core * 0.8 * uGlobalOpacity);
                     }
                 `}
             />

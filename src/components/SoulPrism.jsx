@@ -1,7 +1,119 @@
 import React, { useRef, useMemo, forwardRef } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { MeshTransmissionMaterial, Float, Text, Environment } from '@react-three/drei'
+import { MeshTransmissionMaterial, Float, Text, Environment, Billboard } from '@react-three/drei'
 import * as THREE from 'three'
+
+// --- Sub-Component: Light Rays (God Rays) ---
+function LightRays({ active }) {
+  const groupRef = useRef()
+
+  // Create 8 rays
+  const rays = useMemo(() => {
+    return new Array(8).fill(0).map((_, i) => ({
+      rotation: [0, (i / 8) * Math.PI * 2, 0],
+      scale: [0.2 + Math.random() * 0.5, 1 + Math.random(), 1],
+      speed: 0.2 + Math.random() * 0.3
+    }))
+  }, [])
+
+  useFrame((state, delta) => {
+    if (groupRef.current) {
+      // Rotate the whole group slowly
+      groupRef.current.rotation.y += delta * 0.1
+
+      // Animate individual rays if needed (e.g. pulsing)
+      // For now, simple rotation is enough for "majestic" feel
+    }
+  })
+
+  return (
+    <group ref={groupRef}>
+      {rays.map((ray, i) => (
+        <mesh key={i} rotation={ray.rotation} position={[0, 0, 0]}>
+          {/* Long, thin planes radiating out */}
+          <planeGeometry args={[1, 8]} />
+          <shaderMaterial
+            transparent
+            depthWrite={false}
+            blending={THREE.AdditiveBlending}
+            side={THREE.DoubleSide}
+            uniforms={{
+              uColor: { value: new THREE.Color('#aaddff') },
+              uOpacity: { value: active ? 0.6 : 0.0 } // Fade in/out
+            }}
+            vertexShader={`
+              varying vec2 vUv;
+              void main() {
+                vUv = uv;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+              }
+            `}
+            fragmentShader={`
+              uniform vec3 uColor;
+              uniform float uOpacity;
+              varying vec2 vUv;
+              void main() {
+                // Beam shape: fade out at edges and top/bottom
+                float beam = smoothstep(0.0, 0.5, vUv.x) * (1.0 - smoothstep(0.5, 1.0, vUv.x));
+                float fade = 1.0 - vUv.y; // Fade out as it goes up/out
+                
+                // Noise/Texture could be added here for "dusty" look
+                
+                gl_FragColor = vec4(uColor, beam * fade * uOpacity);
+              }
+            `}
+          />
+        </mesh>
+      ))}
+    </group>
+  )
+}
+
+// --- Sub-Component: Core Flare (Hot Center) ---
+function CoreFlare({ active }) {
+  return (
+    <Billboard follow={true}>
+      <mesh scale={active ? 3 : 0}>
+        <planeGeometry args={[1, 1]} />
+        <meshBasicMaterial
+          color="#ffffff"
+          transparent
+          opacity={0.8}
+          blending={THREE.AdditiveBlending}
+          depthWrite={false}
+          map={new THREE.TextureLoader().load('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/sprites/glow.png')} // Use a standard glow texture or procedural
+        />
+      </mesh>
+    </Billboard>
+  )
+}
+
+// Procedural Flare Shader (if texture fails or for more control)
+const FlareMaterial = {
+  uniforms: {
+    uTime: { value: 0 },
+    uOpacity: { value: 0 }
+  },
+  vertexShader: `
+        varying vec2 vUv;
+        void main() {
+            vUv = uv;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+    `,
+  fragmentShader: `
+        varying vec2 vUv;
+        uniform float uOpacity;
+        void main() {
+            vec2 center = vec2(0.5);
+            float dist = distance(vUv, center);
+            float glow = 1.0 - smoothstep(0.0, 0.5, dist);
+            glow = pow(glow, 3.0); // Sharp falloff
+            gl_FragColor = vec4(1.0, 1.0, 1.0, glow * uOpacity);
+        }
+    `
+}
+
 
 const SoulPrism = forwardRef(({ onClick, active, position, charging }, ref) => {
   const meshRef = useRef()
@@ -23,8 +135,8 @@ const SoulPrism = forwardRef(({ onClick, active, position, charging }, ref) => {
     }
 
     // Sequence Thresholds
-    const showBeam = timer.current > 1.5 // Beam starts after 1.5s
-    const showPanel = timer.current > 2.0 // Panel starts after 2.0s
+    const showBeam = timer.current > 1.0 // Beam/Glow starts after 1.0s
+    const showPanel = timer.current > 1.2 // Panel starts after 1.2s
 
     if (meshRef.current) {
       meshRef.current.rotation.x += delta * 0.2 * speedMultiplier
@@ -48,11 +160,13 @@ const SoulPrism = forwardRef(({ onClick, active, position, charging }, ref) => {
 
     // Animate Glow (Atmosphere)
     if (glowRef.current) {
-      const targetScale = showBeam ? 1.5 : 0 // Expand to 1.5x size
+      const targetScale = showBeam ? 1.2 : 0 // Expand to size
       const currentScale = THREE.MathUtils.lerp(glowRef.current.scale.x, targetScale, delta * 2)
       glowRef.current.scale.setScalar(currentScale)
+
       // Pulse opacity
-      glowRef.current.material.uniforms.uOpacity.value = showBeam ? 0.6 : 0.0
+      const targetOpacity = showBeam ? 1.0 : 0.0
+      glowRef.current.material.uniforms.uOpacity.value = THREE.MathUtils.lerp(glowRef.current.material.uniforms.uOpacity.value, targetOpacity, delta * 2)
     }
 
     // Animate Mist Panel
@@ -66,6 +180,9 @@ const SoulPrism = forwardRef(({ onClick, active, position, charging }, ref) => {
 
   const glowRef = useRef()
   const mistRef = useRef()
+
+  // Calculate beam active state for child components
+  const isBeamActive = charging && timer.current > 1.0
 
   return (
     <group position={position} ref={ref}>
@@ -141,9 +258,10 @@ const SoulPrism = forwardRef(({ onClick, active, position, charging }, ref) => {
         </Text>
       </group>
 
-      {/* 1. Soft Glow Sphere (The "Aura") */}
+      {/* 1. Premium Volumetric Glow (The "Aura") */}
+      {/* High poly sphere for smooth gradient */}
       <mesh ref={glowRef} position={[0, 0, 0]} scale={[0, 0, 0]}>
-        <sphereGeometry args={[2.5, 32, 32]} />
+        <sphereGeometry args={[3.5, 64, 64]} />
         <shaderMaterial
           transparent
           depthWrite={false}
@@ -151,29 +269,80 @@ const SoulPrism = forwardRef(({ onClick, active, position, charging }, ref) => {
           side={THREE.BackSide} // Render inside to look volumetric
           uniforms={{
             uOpacity: { value: 0.0 },
-            uColor: { value: new THREE.Color('#88ccff') }
+            uColor: { value: new THREE.Color('#88ccff') },
+            uCoreColor: { value: new THREE.Color('#ffffff') }
           }}
           vertexShader={`
                 varying vec3 vNormal;
+                varying vec3 vPosition;
                 void main() {
                     vNormal = normalize(normalMatrix * normal);
+                    vPosition = position;
                     gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
                 }
             `}
           fragmentShader={`
                 uniform float uOpacity;
                 uniform vec3 uColor;
+                uniform vec3 uCoreColor;
                 varying vec3 vNormal;
+                varying vec3 vPosition;
+                
                 void main() {
-                    // Soft rim glow
-                    float intensity = pow(0.6 - dot(vNormal, vec3(0, 0, 1.0)), 2.0);
-                    gl_FragColor = vec4(uColor, intensity * uOpacity);
+                    // Fresnel effect: Bright at edges, but we want volumetric feel
+                    // Dot product of view direction (0,0,1 in view space) and normal
+                    float viewDot = dot(vNormal, vec3(0, 0, 1.0));
+                    
+                    // Soft, wide glow
+                    float intensity = pow(0.6 - viewDot, 2.5);
+                    
+                    // Clamp to avoid artifacts
+                    intensity = clamp(intensity, 0.0, 1.0);
+                    
+                    // Gradient color: White center -> Blue edge
+                    vec3 finalColor = mix(uColor, uCoreColor, intensity * 0.5);
+                    
+                    gl_FragColor = vec4(finalColor, intensity * uOpacity);
                 }
             `}
         />
       </mesh>
 
-      {/* 2. Mist Panel (Condensing Light) */}
+      {/* 2. Light Rays (God Rays) */}
+      <LightRays active={isBeamActive} />
+
+      {/* 3. Core Flare (Hot Center) */}
+      {/* Only show when glowing to add "punch" */}
+      {isBeamActive && (
+        <mesh scale={4}>
+          <planeGeometry args={[1, 1]} />
+          <shaderMaterial
+            transparent
+            depthWrite={false}
+            blending={THREE.AdditiveBlending}
+            uniforms={{ uOpacity: { value: 1.0 } }}
+            vertexShader={`
+                    varying vec2 vUv;
+                    void main() {
+                        vUv = uv;
+                        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                    }
+                `}
+            fragmentShader={`
+                    varying vec2 vUv;
+                    uniform float uOpacity;
+                    void main() {
+                        float d = distance(vUv, vec2(0.5));
+                        float glow = 1.0 - smoothstep(0.0, 0.5, d);
+                        glow = pow(glow, 2.0);
+                        gl_FragColor = vec4(1.0, 1.0, 1.0, glow * uOpacity);
+                    }
+                `}
+          />
+        </mesh>
+      )}
+
+      {/* 4. Mist Panel (Condensing Light) */}
       <mesh ref={mistRef} position={[0, 3.5, 0]} scale={[1, 1, 1]}>
         <planeGeometry args={[4, 2.5, 32, 32]} />
         <shaderMaterial
