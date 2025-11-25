@@ -5,7 +5,7 @@ const MOCK_IMAGES = [
   "https://images.unsplash.com/photo-1506318137071-a8bcbf6d919d?q=80&w=1000&auto=format&fit=crop", // Mountains mist
   "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1000&auto=format&fit=crop", // Earth from space
   "https://images.unsplash.com/photo-1518066000714-58c45f1a2c0a?q=80&w=1000&auto=format&fit=crop", // Crystal
-  "https://images.unsplash.com/photo-1516339901601-2e1b62dc0f45?q=80&w=1000&auto=format&fit=crop", // Cyberpunk
+  "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=1000&auto=format&fit=crop", // Cosmic (replaced broken link)
   "https://images.unsplash.com/photo-1510942201312-84e7962f6dbb?q=80&w=1000&auto=format&fit=crop", // Neon
   "https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?q=80&w=1000&auto=format&fit=crop", // Night sky
 ];
@@ -41,26 +41,12 @@ export const generateMockDream = async (inputText) => {
   const analysisIndex = Math.floor(Math.random() * MOCK_TEMPLATES.length);
   const analysis = MOCK_TEMPLATES[analysisIndex];
 
-  // Pre-fetch image to avoid flicker
-  try {
-    const response = await fetch(imageUrl);
-    const blob = await response.blob();
-    const objectUrl = URL.createObjectURL(blob);
-    return {
-      imageUrl: objectUrl,
-      originalUrl: imageUrl,
-      keywords,
-      analysis,
-      inputText // Keep the original input
-    };
-  } catch (e) {
-    console.warn("Failed to pre-fetch image", e);
-    return {
-      imageUrl,
-      originalUrl: imageUrl,
-      keywords,
-      analysis,
-      inputText
-    };
-  }
+  // Return direct URL to avoid blob URL memory leaks
+  // Blob URLs were causing "Could not load blob" errors and WebGL context loss
+  return {
+    imageUrl,
+    keywords,
+    analysis,
+    inputText // Keep the original input
+  };
 };
