@@ -278,7 +278,14 @@ function FloatingLabel({ text, position, delay, align = 'left' }) {
 
 export default function HolisticReport({ onBack, prismPosition }) {
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
+    const [mounted, setMounted] = useState(false)
     const { viewport } = useThree()
+
+    // Track mount state to ensure animations play
+    useEffect(() => {
+        setMounted(true)
+        return () => setMounted(false)
+    }, [])
 
     // Track mouse for interaction
     useEffect(() => {
@@ -305,18 +312,19 @@ export default function HolisticReport({ onBack, prismPosition }) {
                         {/* 2. Decentralized Text Layout (Echoes of Light) */}
                         
                         {/* Title - Drifting top left */}
-                        <Html position={[-3, 2, 0]} transform distanceFactor={8} style={{ pointerEvents: 'none' }}>
+                        <Html position={[-3, 2, 0]} transform distanceFactor={8} style={{ pointerEvents: 'none' }} zIndexRange={[1000, 0]}>
                             <motion.div
+                                key="title-text"
                                 initial={{ opacity: 0, y: 40, filter: 'blur(10px)' }}
-                                animate={{ 
-                                    opacity: 1, 
-                                    y: 0, 
+                                animate={mounted ? {
+                                    opacity: 1,
+                                    y: 0,
                                     filter: 'blur(0px)',
                                     textShadow: ['0 0 40px rgba(0,0,0,0.8)', '0 0 50px rgba(0,0,0,0.8)'] // Dark pulsing shadow backing
-                                }}
+                                } : {}}
                                 transition={{
                                     duration: 3, // Slow, majestic entry
-                                    delay: 0.5, 
+                                    delay: 0.5,
                                     ease: "easeOut"
                                 }}
                                 style={{ textAlign: 'left' }}
@@ -343,10 +351,11 @@ export default function HolisticReport({ onBack, prismPosition }) {
                         </Html>
             
                         {/* Description - Drifting bottom right */}
-                        <Html position={[3, -1.5, 0]} transform distanceFactor={8} style={{ pointerEvents: 'none' }}>
+                        <Html position={[3, -1.5, 0]} transform distanceFactor={8} style={{ pointerEvents: 'none' }} zIndexRange={[1000, 0]}>
                             <motion.div
+                                key="description-text"
                                 initial={{ opacity: 0, x: 20 }}
-                                animate={{ opacity: 0.9, x: 0 }}
+                                animate={mounted ? { opacity: 0.9, x: 0 } : {}}
                                 transition={{ duration: 2.5, delay: 1.0, ease: "easeOut" }}
                                 style={{ 
                                     width: '350px', 
@@ -372,10 +381,11 @@ export default function HolisticReport({ onBack, prismPosition }) {
                         <FloatingLabel text="Depth 92%" position={[0, -3.0, 0]} delay={2.1} align="center" />
             
                         {/* Close Interaction - Subtle bottom center */}
-                        <Html position={[0, -4.0, 0]} center transform>
+                        <Html position={[0, -4.0, 0]} center transform zIndexRange={[1000, 0]}>
                             <motion.button
+                                key="close-button"
                                 initial={{ opacity: 0 }}
-                                animate={{ opacity: 0.7 }}
+                                animate={mounted ? { opacity: 0.7 } : {}}
                                 whileHover={{ opacity: 1, scale: 1.1, letterSpacing: '0.4em', textShadow: '0 0 20px white' }}
                                 transition={{ duration: 2, delay: 2.5 }}
                                 onClick={onBack}

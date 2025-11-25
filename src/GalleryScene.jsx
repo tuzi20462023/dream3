@@ -283,9 +283,9 @@ const GalleryScene = ({ onBack, dreams }) => {
         />
 
         {/* Centered Holistic Report */}
-        <AnimatePresence>
+        <AnimatePresence mode="wait">
           {viewMode === 'analysis' && (
-            <HolisticReport onBack={() => setViewMode('timeline')} />
+            <HolisticReport key="holistic-report" onBack={() => setViewMode('timeline')} />
           )}
         </AnimatePresence>
 
