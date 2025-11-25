@@ -4,6 +4,7 @@ import { Suspense, useState } from 'react'
 import Scene from './Scene'
 import InputInterface from './components/InputInterface'
 import GalleryScene from './GalleryScene'
+import BackgroundMusic from './components/BackgroundMusic'
 import { dreams as initialDreams } from './data/dreams'
 
 function App() {
@@ -40,13 +41,13 @@ function App() {
     setTransitionData(null)
   }
 
-  if (appState === 'gallery') {
-    return <GalleryScene onBack={() => setAppState('input')} dreams={galleryDreams} />
-  }
-
   return (
     <>
-      <Leva
+      {appState === 'gallery' ? (
+        <GalleryScene onBack={() => setAppState('input')} dreams={galleryDreams} />
+      ) : (
+        <>
+          <Leva
         collapsed={false}
         theme={{
           colors: {
@@ -117,6 +118,12 @@ function App() {
           Enter Gallery
         </button>
       </div>
+
+        </>
+      )}
+
+      {/* BackgroundMusic stays at top level, never unmounts */}
+      <BackgroundMusic appState={appState} />
     </>
   )
 }
