@@ -68,14 +68,23 @@ export default function InputInterface({ appState, setAppState, onDreamGenerated
   }
 
   const generateDream = async (text) => {
+    // Prevent multiple simultaneous requests
+    if (appState === 'processing') return
+
     setAppState('processing')
     try {
       const data = await generateMockDream(text)
+      // Update dream data and notify parent
       setLocalDreamData(data)
       onDreamGenerated(data)
     } catch (error) {
       console.error("Dream generation failed:", error)
-      setAppState('input')
+      // On error, restore local dream data and go back to preview if we had data
+      if (localDreamData) {
+        setAppState('preview')
+      } else {
+        setAppState('input')
+      }
     }
   }
 
@@ -86,9 +95,10 @@ export default function InputInterface({ appState, setAppState, onDreamGenerated
   }
 
   const handleRegenerate = () => {
-    if (localDreamData?.inputText) {
-      generateDream(localDreamData.inputText)
-    }
+    // Prevent regenerate if already processing or no previous input
+    if (appState === 'processing' || !localDreamData?.inputText) return
+
+    generateDream(localDreamData.inputText)
   }
 
   return (
@@ -198,12 +208,17 @@ export default function InputInterface({ appState, setAppState, onDreamGenerated
                 <motion.button
                     className="secondary-btn"
                     onClick={handleRegenerate}
-                    whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.1)" }}
+                    whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.95 }}
                     title="Regenerate"
+                    disabled={appState === 'processing'}
+                    style={{
+                      opacity: appState === 'processing' ? 0.5 : 1,
+                      cursor: appState === 'processing' ? 'not-allowed' : 'pointer'
+                    }}
                 >
                     <RefreshIcon />
-                    Regenerate
+                    <span>Regenerate</span>
                 </motion.button>
 
                 <motion.button
