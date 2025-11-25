@@ -5,6 +5,7 @@ uniform float uThreshold;
 uniform float uEdgeSoftness;
 uniform float uOpacity;
 uniform float uBrightness;
+uniform float uSharpness; // New control
 
 float getBrightness(vec3 color) {
   return dot(color, vec3(0.299, 0.587, 0.114));
@@ -17,7 +18,11 @@ void main() {
   float dist = length(center);
   
   // Soft glow particle: alpha drops from 1.0 at center to 0.0 at edge (0.5)
-  float particleAlpha = 1.0 - smoothstep(0.0, 0.5, dist);
+  // uSharpness controls how "solid" the core is. 
+  // If uSharpness is 0.0, start fade at 0.0 (fully soft).
+  // If uSharpness is 0.8, start fade at 0.4 (almost solid circle).
+  float alphaStart = 0.5 * uSharpness;
+  float particleAlpha = 1.0 - smoothstep(alphaStart, 0.5, dist);
   
   // Thresholding
   float brightness = getBrightness(vColor);

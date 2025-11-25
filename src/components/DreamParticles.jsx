@@ -26,6 +26,8 @@ const ParticleMaterial = shaderMaterial(
         uMouseStrength: 2.0,
         uMouseDisp: 2.0,
         uDispersionZone: 0.3,
+        uSharpness: 0.0,
+        uDetailStrength: 0.5,
     },
     vertexShader,
     fragmentShader
@@ -55,11 +57,11 @@ const DreamParticles = ({ appState, dreamData, isGalleryItem = false }) => {
     const defaults = {
         size: 0.33,
         density: 400,
-        displacementStrength: 3.4,
-        threshold: 0.10,
-        randomness: 0.00,
-        edgeSoftness: 0.11,
-        opacity: 0.87,
+        displacementStrength: 5.8,
+        threshold: 0.0, // Prevent black images
+        randomness: 0.0, // Fixed: Scatter is 0.0
+        edgeSoftness: 0.23,
+        opacity: 1.0,
         brightness: 1.95,
         dispersion: 0.80,
         curlStrength: 0.14,
@@ -67,7 +69,9 @@ const DreamParticles = ({ appState, dreamData, isGalleryItem = false }) => {
         mouseRadius: 1.70,
         mouseStrength: 0.1,
         mouseDisp: 0.8,
-        dispersionZone: 0.23
+        dispersionZone: 0.23,
+        sharpness: 0.3,
+        detailStrength: 0.8
     }
 
     const [controls, set] = useControls('Particles', () => ({
@@ -86,8 +90,10 @@ const DreamParticles = ({ appState, dreamData, isGalleryItem = false }) => {
         mouseStrength: { value: defaults.mouseStrength, min: 0.0, max: 10.0, label: 'Mouse Force' },
         mouseDisp: { value: defaults.mouseDisp, min: -5.0, max: 5.0, label: 'Mouse Bulge' },
         dispersionZone: { value: defaults.dispersionZone, min: 0.0, max: 1.0, label: 'Clear Zone' },
+        sharpness: { value: defaults.sharpness, min: 0.0, max: 1.0, label: 'Sharpness' },
+        detailStrength: { value: defaults.detailStrength, min: 0.0, max: 1.0, label: 'Smart Detail' },
         'Reset Defaults': button(() => set(defaults))
-    }))
+    }), { collapsed: true })
 
     // Use refs for animation values to avoid re-renders
     const targetOpacity = useRef(0)
@@ -213,6 +219,8 @@ const DreamParticles = ({ appState, dreamData, isGalleryItem = false }) => {
             materialRef.current.uMouseStrength = controls.mouseStrength
             materialRef.current.uMouseDisp = controls.mouseDisp
             materialRef.current.uDispersionZone = controls.dispersionZone
+            materialRef.current.uSharpness = controls.sharpness
+            materialRef.current.uDetailStrength = controls.detailStrength
         }
     })
 

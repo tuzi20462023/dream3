@@ -17,6 +17,7 @@ uniform float uMouseRadius;
 uniform float uMouseStrength;
 uniform float uMouseDisp;
 uniform float uDispersionZone;
+uniform float uDetailStrength; // Controls how much brightness reduces size
 
 // Simplex 3D Noise 
 // by Ian McEwan, Ashima Arts
@@ -156,7 +157,12 @@ void main() {
   // Size attenuation
   // Center = Normal Size (Sharp)
   // Edges = Larger Size (Nebula/Cloudy)
-  float nebulaSize = uSize * (1.0 + dispersionFactor * 3.0);
+  
+  // Smart Sizing: Bright areas (high detail) get smaller particles for sharpness
+  // Dark areas (background) get default size
+  float detailFactor = mix(1.0, 0.3, brightness * uDetailStrength);
+  
+  float nebulaSize = uSize * (1.0 + dispersionFactor * 3.0) * detailFactor;
   gl_PointSize = nebulaSize * (300.0 / -mvPosition.z);
   
   // Pass visibility info (optional, can be done in fragment)
