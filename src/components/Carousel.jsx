@@ -1,8 +1,24 @@
 import React, { useRef, useState, useMemo } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
-import { useScroll, Text, Billboard } from '@react-three/drei'
+import { useScroll, Text, Billboard, useTexture } from '@react-three/drei'
 import * as THREE from 'three'
 import DreamParticles from "./DreamParticles";
+
+// Lightweight Gallery Card (to prevent WebGL context loss)
+function GalleryCard({ imageUrl, hovered }) {
+    const texture = useTexture(imageUrl)
+
+    return (
+        <mesh>
+            <planeGeometry args={[10, 10]} />
+            <meshBasicMaterial
+                map={texture}
+                transparent
+                opacity={hovered ? 1.0 : 0.8}
+            />
+        </mesh>
+    )
+}
 
 // Organic Dust Beam Component
 function DustBeam({ start, end, active }) {
@@ -240,12 +256,8 @@ function CarouselItem({ dream, index, scrollOffset, totalItems, onClick, onHover
                         lockY={false}
                         lockZ={false}
                     >
-                        <DreamParticles
-                            dreamData={dream}
-                            isGalleryItem={true}
-                            active={hovered}
-                            scale={1}
-                        />
+                        {/* Use lightweight GalleryCard instead of DreamParticles to prevent WebGL context loss */}
+                        <GalleryCard imageUrl={dream.imageUrl} hovered={hovered} />
                     </Billboard>
                 </group>
 
