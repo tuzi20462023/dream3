@@ -138,9 +138,9 @@ const DreamParticles = ({ appState, dreamData, isGalleryItem = false }) => {
     }, [appState, controls.opacity, controls.dispersion, isGalleryItem])
 
     // Determine effective density
-    // If gallery item, use lower density for performance (64x64 = 4k particles per card)
+    // If gallery item, use lower density for performance (128x128 = 16k particles per card)
     // Otherwise use the Leva control value (default 400x400 = 160k particles)
-    const effectiveDensity = isGalleryItem ? 64 : controls.density
+    const effectiveDensity = isGalleryItem ? 128 : controls.density
 
     // Generate particles
     const particles = useMemo(() => {

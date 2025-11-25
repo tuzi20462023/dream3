@@ -163,7 +163,7 @@ function SoulCloud({ mousePos }) {
     const geometryRef = useRef()
 
     // Generate Particles
-    const particleCount = 1500 // Optimized to prevent WebGL context loss while keeping visual effect
+    const particleCount = 3500 // Restored to original density for full visual effect
     const { positions, sizes, speeds, randoms } = useMemo(() => {
         const positions = []
         const sizes = []
