@@ -186,7 +186,7 @@ export default function InputInterface({ appState, setAppState, onDreamGenerated
           >
             <div className="preview-image-container">
               <img 
-                src={`${localDreamData.imageUrl}${localDreamData.imageUrl.includes('?') ? '&' : '?'}t=${Date.now()}`} 
+                src={localDreamData.imageUrl} 
                 alt="Dream visualization" 
                 className="preview-image" 
                 crossOrigin="anonymous" 

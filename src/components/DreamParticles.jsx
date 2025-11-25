@@ -37,7 +37,7 @@ const ParticleMaterial = shaderMaterial(
 import { extend } from '@react-three/fiber'
 extend({ ParticleMaterial })
 
-const DreamParticles = ({ appState, dreamData, isGalleryItem = false }) => {
+const DreamParticles = ({ appState, dreamData, isGalleryItem = false, ...props }) => {
     // Default placeholder texture
     const defaultUrl = 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=800&q=80'
     
@@ -253,6 +253,7 @@ const DreamParticles = ({ appState, dreamData, isGalleryItem = false }) => {
 
     return (
         <points
+            {...props}
             onPointerMove={handlePointerMove}
             onPointerLeave={handlePointerLeave}
         >

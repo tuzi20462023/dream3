@@ -14,7 +14,11 @@ const Scene = ({ appState, dreamData }) => {
                 autoRotateSpeed={0.5}
             />
             
-            <DreamParticles appState={appState} dreamData={dreamData} />
+            <DreamParticles 
+                appState={appState} 
+                dreamData={dreamData} 
+                position={[0, 0, appState === 'immersed' ? 0 : 3]} 
+            />
         </>
     )
 }
