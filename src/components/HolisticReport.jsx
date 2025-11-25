@@ -217,16 +217,19 @@ function SoulCloud({ mousePos }) {
     // Cleanup resources on unmount
     useEffect(() => {
         return () => {
-            if (geometryRef.current) {
-                Object.keys(geometryRef.current.attributes).forEach(key => {
-                    geometryRef.current.attributes[key].array = null
-                })
-                geometryRef.current.dispose()
-            }
-            if (materialRef.current) {
-                materialRef.current.dispose()
-            }
-            console.log('[SoulCloud] Resources cleaned up')
+            setTimeout(() => {
+                try {
+                    if (geometryRef.current) {
+                        geometryRef.current.dispose()
+                    }
+                    if (materialRef.current) {
+                        materialRef.current.dispose()
+                    }
+                    console.log('[SoulCloud] Resources cleaned up')
+                } catch (err) {
+                    console.warn('[SoulCloud] Cleanup error (safe to ignore):', err)
+                }
+            }, 100)
         }
     }, [])
 

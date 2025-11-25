@@ -187,20 +187,22 @@ const DreamParticles = ({ appState, dreamData, isGalleryItem = false }) => {
     // Cleanup resources on unmount to prevent WebGL context loss
     useEffect(() => {
         return () => {
-            // Dispose geometry and all its attributes
-            if (geometryRef.current) {
-                // Dispose all buffer attributes
-                Object.keys(geometryRef.current.attributes).forEach(key => {
-                    geometryRef.current.attributes[key].array = null
-                })
-                geometryRef.current.dispose()
-            }
-            // Dispose material
-            if (materialRef.current) {
-                materialRef.current.dispose()
-            }
-            // Note: useTexture handles texture disposal internally with caching
-            console.log('[DreamParticles] Resources cleaned up')
+            // Delay disposal to prevent simultaneous resource destruction
+            setTimeout(() => {
+                try {
+                    // Dispose geometry (automatically handles attributes)
+                    if (geometryRef.current) {
+                        geometryRef.current.dispose()
+                    }
+                    // Dispose material
+                    if (materialRef.current) {
+                        materialRef.current.dispose()
+                    }
+                    console.log('[DreamParticles] Resources cleaned up')
+                } catch (err) {
+                    console.warn('[DreamParticles] Cleanup error (safe to ignore):', err)
+                }
+            }, 100)
         }
     }, [])
 
