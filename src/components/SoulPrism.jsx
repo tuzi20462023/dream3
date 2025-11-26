@@ -1,6 +1,6 @@
 import React, { useRef, useMemo, forwardRef } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { MeshTransmissionMaterial, Float, Environment, Billboard, Html } from '@react-three/drei'
+import { MeshTransmissionMaterial, Float, Environment, Billboard, Text } from '@react-three/drei'
 import * as THREE from 'three'
 
 // --- Sub-Component: Light Rays (God Rays) ---
@@ -194,7 +194,7 @@ const SoulPrism = forwardRef(({ onClick, active, position, charging }, ref) => {
           onClick={onClick}
           onPointerOver={() => document.body.style.cursor = 'pointer'}
           onPointerOut={() => document.body.style.cursor = 'auto'}
-          scale={active ? 0.7 : 0}
+          scale={active ? 0.55 : 0} // Reduced scale from 0.7 to 0.55
         >
           {/* 钻石外壳 - 璀璨效果 */}
           <mesh ref={meshRef}>
@@ -236,23 +236,39 @@ const SoulPrism = forwardRef(({ onClick, active, position, charging }, ref) => {
         </group>
       </Float>
 
-      <group position={[0, -2.2, 0]} visible={active && !charging}>
-        <Html transform position={[0, 0, 0]} center style={{ pointerEvents: 'none' }}>
-            <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                opacity: 0.9,
-                color: 'white',
-                fontFamily: "'Noto Serif SC', serif",
-                textShadow: '0 0 10px rgba(0,0,0,0.5)',
-                whiteSpace: 'nowrap'
-            }}>
-                <div style={{ fontSize: '18px', letterSpacing: '0.2em' }}>凝 结</div>
-                <div style={{ fontSize: '12px', letterSpacing: '0.1em', opacity: 0.5 }}>信 念</div>
-            </div>
-        </Html>
-      </group>
+      {/* Text moved to BOTTOM with tight gap (y=-0.9) for classic label look */}
+      {/* Switched to 3D Text to prevent HTML overlay drifting/scrolling issues */}
+      {active && !charging && (
+        <group position={[0, -0.9, 0]}>
+            <Text
+                font="https://cdn.jsdelivr.net/npm/@openfonts/noto-serif-sc_chinese-simplified@1.44.2/files/noto-serif-sc-chinese-simplified-400.woff"
+                fontSize={0.18}
+                color="white"
+                anchorX="center"
+                anchorY="top"
+                letterSpacing={0.3}
+                fillOpacity={0.95}
+                // Tone mapping false allows bloom to pick it up as glow
+                toneMapped={false} 
+                characters="凝结信念"
+            >
+                凝 结
+            </Text>
+            <Text
+                font="https://cdn.jsdelivr.net/npm/@openfonts/noto-serif-sc_chinese-simplified@1.44.2/files/noto-serif-sc-chinese-simplified-400.woff"
+                fontSize={0.10}
+                position={[0, -0.22, 0]} // Spacing below first line
+                color="white"
+                anchorX="center"
+                anchorY="top"
+                letterSpacing={0.1}
+                fillOpacity={0.8}
+                characters="凝结信念"
+            >
+                信 念
+            </Text>
+        </group>
+      )}
 
       {/* 1. Premium Volumetric Glow (The "Aura") */}
       {/* High poly sphere for smooth gradient */}

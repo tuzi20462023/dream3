@@ -109,10 +109,10 @@ void main() {
   // 2. Mouse Interaction / Force Field
   // If mouse is close, push particles away or pull them (Abstract interaction)
   // Distance from mouse to particle (assuming mouse is projected to z=0 plane mostly)
-  // Simple "Repel" effect
+  // Simple "Repel" effect with stronger whisper feel
   float dist = distance(pos.xy, uMouse.xy);
-  float force = smoothstep(1.5, 0.0, dist) * uHover; // Radius reduced from 3.0 to 1.5
-  pos += normalize(pos - vec3(uMouse.xy, 0.0)) * force * 1.0; // Reduced force strength slightly
+  float force = smoothstep(3.0, 0.0, dist) * uHover; // Radius increased from 1.5 to 3.0
+  pos += normalize(pos - vec3(uMouse.xy, 0.0)) * force * 3.0; // Force strength increased from 1.0 to 3.0
 
   vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
   gl_Position = projectionMatrix * mvPosition;

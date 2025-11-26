@@ -11,7 +11,7 @@ function DustBeam({ start, end, active }) {
 
     // Generate particles along the path
     const { positions, randomness } = useMemo(() => {
-        const count = 60 // Number of dust motes per beam
+        const count = 120 // Increased from 60 for denser beam
         const positions = new Float32Array(count * 3)
         const randomness = new Float32Array(count * 3)
 
@@ -101,9 +101,9 @@ function DustBeam({ start, end, active }) {
                         float t = distance(position, uStart) / distance(uStart, uEnd);
                         
                         // Flow animation: particles move from start to end
-                        float flowSpeed = 1.5;
+                        float flowSpeed = 2.0; // Increased flow speed
                         
-                        float phase = fract(t + uTime * 0.5); 
+                        float phase = fract(t + uTime * 0.8); // Faster cycle
                         
                         // Lerp position based on phase
                         vec3 currentPos = mix(uStart, uEnd, phase);
@@ -116,8 +116,8 @@ function DustBeam({ start, end, active }) {
                         vec4 mvPosition = modelViewMatrix * vec4(currentPos, 1.0);
                         gl_Position = projectionMatrix * mvPosition;
                         
-                        // Size attenuation
-                        gl_PointSize = (4.0 + sin(uTime * 10.0 + t * 20.0)) * (10.0 / -mvPosition.z);
+                        // Size attenuation - Increased base size
+                        gl_PointSize = (6.0 + sin(uTime * 10.0 + t * 20.0)) * (10.0 / -mvPosition.z);
                         
                         // Fade in/out at ends
                         vAlpha = smoothstep(0.0, 0.2, phase) * (1.0 - smoothstep(0.8, 1.0, phase));

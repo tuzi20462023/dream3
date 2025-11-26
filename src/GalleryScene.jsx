@@ -55,7 +55,7 @@ function Stardust() {
         />
       </bufferGeometry>
       <pointsMaterial
-        size={0.15}
+        size={0.25} // Increased from 0.15
         color="#88ccff"
         sizeAttenuation
         transparent
@@ -96,65 +96,54 @@ const DreamModal = ({ dream, onClose }) => {
         exit={{ scale: 0.9, y: 20 }}
         onClick={(e) => e.stopPropagation()}
         style={{
-          background: 'rgba(20, 25, 35, 0.6)', // Darker, matching new glass style
-          backdropFilter: 'blur(30px) saturate(120%)',
-          border: '1px solid rgba(255,255,255,0.1)',
+          background: 'rgba(20, 25, 35, 0.6)', 
+          backdropFilter: 'blur(40px) saturate(110%)', // Softer blur
+          border: '1px solid rgba(255,255,255,0.08)', // Thinner border
           borderRadius: '24px',
-          padding: '3.5rem 4rem', // Increased padding
-          maxWidth: '600px', // Wider card
+          padding: '4rem 5rem', // More horizontal padding
+          maxWidth: '600px',
           width: '90%',
           color: 'white',
-          boxShadow: '0 40px 100px -20px rgba(0,0,0,0.6)'
+          boxShadow: '0 40px 100px -20px rgba(0,0,0,0.5)'
         }}
       >
         <h2 style={{
           fontFamily: "'Noto Serif SC', serif",
-          fontSize: '2.5rem', // Larger title
-          marginBottom: '0.5rem',
-          letterSpacing: '0.3em',
-          textAlign: 'center', // Center align title
-          textShadow: '0 0 20px rgba(255,255,255,0.2)'
+          fontSize: '2.2rem', 
+          marginBottom: '0.8rem',
+          letterSpacing: '0.4em', // Wider spacing
+          textAlign: 'center', 
+          fontWeight: 300,
+          textShadow: '0 0 30px rgba(255,255,255,0.15)',
+          marginRight: '-0.4em' // Compensate for spacing
         }}>
           {dream.title}
         </h2>
         <div style={{
-          color: 'rgba(255,255,255,0.5)',
-          marginBottom: '3rem', // More space after header
-          fontSize: '0.9rem',
-          letterSpacing: '0.1em',
+          color: 'rgba(255,255,255,0.4)',
+          marginBottom: '3.5rem', 
+          fontSize: '0.85rem',
+          letterSpacing: '0.2em',
           fontFamily: "'Noto Serif SC', serif",
-          textAlign: 'center'
+          textAlign: 'center',
+          marginRight: '-0.2em'
         }}>
           {dream.date}
         </div>
         <p style={{
-          lineHeight: '2.2', // Very loose line height for elegance
-          color: 'rgba(255,255,255,0.9)',
-          fontSize: '1.15rem',
-          marginBottom: '3rem',
+          lineHeight: '2.4', // Even looser
+          color: 'rgba(255,255,255,0.85)',
+          fontSize: '1.1rem',
+          marginBottom: '1rem', // Less bottom margin since no tags
           fontFamily: "'Noto Serif SC', serif",
-          textAlign: 'justify', // Justify block text
-          textIndent: '2em' // Chinese paragraph indent
+          textAlign: 'justify', 
+          letterSpacing: '0.05em',
+          padding: '0 1rem' // Inner padding for text block
         }}>
           {dream.description || "此梦境暂无详细记录。"}
         </p>
 
-        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
-          {dream.keywords && dream.keywords.map((kw, i) => (
-            <span key={i} style={{
-              background: 'rgba(255,255,255,0.08)',
-              border: '1px solid rgba(255,255,255,0.15)',
-              padding: '0.6rem 1.5rem',
-              borderRadius: '100px',
-              fontSize: '0.85rem',
-              color: 'rgba(255,255,255,0.8)',
-              fontFamily: "'Noto Serif SC', serif",
-              letterSpacing: '0.1em'
-            }}>
-              #{kw}
-            </span>
-          ))}
-        </div>
+        {/* Removed Keywords Section */}
       </motion.div>
     </motion.div>
   )
@@ -177,7 +166,8 @@ function SoulPrismHUD({ viewMode, setViewMode, prismRef, charging, onClick }) {
   useFrame(() => {
     if (prismRef.current && viewMode === 'timeline') {
       // Calculate position in world space relative to camera
-      const offset = new THREE.Vector3(6.15, -2.4, -8) // Right-bottom corner
+      // Reverted Y to -1.5, kept X at 4.2 for better overall corner placement
+      const offset = new THREE.Vector3(4.2, -1.5, -8) 
       offset.applyQuaternion(camera.quaternion)
       prismRef.current.position.copy(camera.position).add(offset)
 
