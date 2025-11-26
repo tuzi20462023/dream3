@@ -60,7 +60,7 @@ const DreamParticles = ({ appState, dreamData, isGalleryItem = false, ...props }
     const defaults = {
         size: 0.33,
         density: 400,
-        displacementStrength: 5.8,
+        displacementStrength: isGalleryItem ? 5.8 : 1.2, // Use 1.2 for Home Page, 5.8 for Gallery
         threshold: 0.0, // Prevent black images
         randomness: 0.0, // Fixed: Scatter is 0.0
         edgeSoftness: 0.23,

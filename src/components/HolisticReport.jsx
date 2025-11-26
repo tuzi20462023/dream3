@@ -1,6 +1,6 @@
 import React, { useRef, useMemo, useState, useEffect } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
-import { Html, Text } from '@react-three/drei'
+import { Html } from '@react-three/drei'
 import * as THREE from 'three'
 import { motion } from 'framer-motion'
 
@@ -272,7 +272,7 @@ function FloatingLabel({ text, position, delay, align = 'left' }) {
                     alignSelf: align === 'right' ? 'flex-end' : 'flex-start'
                 }} />
                 
-                <span style={{ fontSize: '0.8rem', letterSpacing: '0.2em', textTransform: 'uppercase' }}>{text}</span>
+                <span style={{ fontSize: '0.8rem', letterSpacing: '0.2em', textTransform: 'none', fontFamily: "'Noto Serif SC', serif" }}>{text}</span>
             </motion.div>
         </Html>
     )
@@ -300,7 +300,7 @@ export default function HolisticReport({ onBack, prismPosition }) {
         <group position={[0, 0, -5]}>
             
             {/* Background Haze / Fog - Scaled up significantly to envelop the view in blue/violet */}
-            <AuroraBackground position={[0, 0, -15]} width={50} height={30} opacity={0.2} />
+            <AuroraBackground position={[0, 0, -15]} width={50} height={30} opacity={0.2} displace={1.2} />
 
             {/* 1. Abstract Soul Cloud (The Core) */}
             <SoulCloud mousePos={mousePos} />
@@ -326,23 +326,24 @@ export default function HolisticReport({ onBack, prismPosition }) {
                                 style={{ textAlign: 'left' }}
                             >
                                 <h2 style={{ 
-                                    fontFamily: 'Montserrat', 
+                                    fontFamily: "'Noto Serif SC', serif", 
                                     fontSize: '0.8rem', 
                                     letterSpacing: '0.4em', 
                                     color: 'rgba(255,255,255,0.6)',
                                     margin: 0,
                                     textShadow: '0 0 10px rgba(0,0,0,0.8)' // Strong black shadow for contrast
-                                }}>ARCHETYPE</h2>
+                                }}>梦 境 原 型</h2>
                                 <h1 style={{ 
-                                    fontFamily: 'Cormorant Garamond', 
-                                    fontSize: '5rem', // Slightly larger
+                                    fontFamily: "'Noto Serif SC', serif", 
+                                    fontSize: '4rem', // Slightly smaller for Chinese balance
                                     fontWeight: 300, 
-                                    fontStyle: 'italic',
+                                    fontStyle: 'normal', // Chinese rarely uses italics
                                     color: 'white',
                                     margin: 0,
+                                    letterSpacing: '0.2em', // Added letter spacing for ethereal feel
                                     // Layered shadows: Strong black backdrop + Subtle colored glow
                                     textShadow: '0 0 30px rgba(0,0,0,1), 0 0 10px rgba(0,0,0,1)' 
-                                }}>The Seeker</h1>
+                                }}>探 寻 者</h1>
                             </motion.div>
                         </Html>
             
@@ -363,18 +364,25 @@ export default function HolisticReport({ onBack, prismPosition }) {
                                     textShadow: '0 0 20px rgba(0,0,0,0.9)' // Heavy shadow
                                 }}
                             >
-                                <p>
-                                    "Flight" reveals a spirit detaching from the mundane. 
-                                    Ascending towards clarity through the abstract fog of the subconscious.
+                                <p style={{
+                                    fontFamily: "'Noto Serif SC', serif", 
+                                    fontSize: '1rem',
+                                    lineHeight: '1.8',
+                                    color: '#e0e0ff', // Slight blue tint for readability
+                                    textAlign: 'justify', // Justify text for blocky Chinese feel
+                                    textShadow: '0 0 20px rgba(0,0,0,0.9)' // Heavy shadow
+                                }}>
+                                    “飞翔”揭示了灵魂超脱世俗的渴望。
+                                    通过潜意识的抽象迷雾，升华至清明澄澈之境。
                                 </p>
                             </motion.div>
                         </Html>
             
                         {/* Floating Attribute Labels - Orbiting the cloud */}
                         {/* Static positions after entry for readability */}
-                        <FloatingLabel text="Lucidity 85%" position={[-3.5, 0.5, 0]} delay={1.5} align="right" />
-                        <FloatingLabel text="Chaos 30%" position={[3.5, 1.5, 0]} delay={1.8} align="left" />
-                        <FloatingLabel text="Depth 92%" position={[0, -3.0, 0]} delay={2.1} align="center" />
+                        <FloatingLabel text="清明度 85%" position={[-3.5, 0.5, 0]} delay={1.5} align="right" />
+                        <FloatingLabel text="混沌度 30%" position={[3.5, 1.5, 0]} delay={1.8} align="left" />
+                        <FloatingLabel text="深度 92%" position={[0, -3.0, 0]} delay={2.1} align="center" />
             
                         {/* Close Interaction - Subtle bottom center */}
                         <Html position={[0, -4.0, 0]} center transform zIndexRange={[1000, 0]}>
@@ -391,14 +399,14 @@ export default function HolisticReport({ onBack, prismPosition }) {
                                     color: 'rgba(255,255,255,0.8)',
                                     fontSize: '0.8rem',
                                     letterSpacing: '0.3em',
-                                    textTransform: 'uppercase',
-                                    fontFamily: 'Montserrat',
+                                    textTransform: 'none',
+                                    fontFamily: "'Noto Serif SC', serif",
                                     cursor: 'pointer',
                                     padding: '20px',
                                     textShadow: '0 0 10px black'
                                 }}
                             >
-                                Close Vision
+                                归 隐 梦 境
                             </motion.button>
                         </Html>
         </group>

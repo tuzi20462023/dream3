@@ -1,5 +1,6 @@
 uniform float uTime;
 uniform float uOpacity;
+uniform float uDisplace; // Added displacement control
 uniform vec2 uResolution;
 uniform vec3 uColor1; // Deep Base
 uniform vec3 uColor2; // Secondary
@@ -53,8 +54,8 @@ void main() {
     q.y = fbm( st + vec2(1.0) );
 
     vec2 r = vec2(0.);
-    r.x = fbm( st + 1.0*q + vec2(1.7,9.2)+ 0.15*t );
-    r.y = fbm( st + 1.0*q + vec2(8.3,2.8)+ 0.126*t );
+    r.x = fbm( st + uDisplace*q + vec2(1.7,9.2)+ 0.15*t );
+    r.y = fbm( st + uDisplace*q + vec2(8.3,2.8)+ 0.126*t );
 
     float f = fbm(st + r);
 

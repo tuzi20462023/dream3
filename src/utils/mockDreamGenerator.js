@@ -1,30 +1,24 @@
 // Mock data for AI generation
 const MOCK_IMAGES = [
-  // 方法1: 使用本地图片（放在 public/images/ 文件夹）
-  "/images/dream1.jpg",
-  "/images/dream2.png",
-  "/images/galaxy.webp",
-
-  // 方法2: 继续使用 Unsplash（可混用）
-  "https://images.unsplash.com/photo-1464802686167-b939a6910659?q=80&w=1000&auto=format&fit=crop", // Galaxy
-  "https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=1000&auto=format&fit=crop", // Abstract landscape
-  "https://images.unsplash.com/photo-1518837695005-2083093ee35b?q=80&w=1000&auto=format&fit=crop", // Northern lights
-  "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1000&auto=format&fit=crop", // Earth from space
-  "https://images.unsplash.com/photo-1518066000714-58c45f1a2c0a?q=80&w=1000&auto=format&fit=crop", // Crystal
+  // 本地图片 (放在 public/images/ 目录下)
+  "/images/1.png",
+  "/images/2.png",
+  "/images/3.png",
+  "/images/4.png",
 ];
 
 const MOCK_KEYWORDS = [
-  "Ascension", "Clarity", "Freedom", "Mystery", "Ethereal", 
-  "Subconscious", "Awakening", "Drifting", "Luminous", "Void",
-  "Connection", "Solitude", "Harmony", "Chaos", "Pulse"
+  "升华", "洞察", "自由", "神秘", "空灵",
+  "潜意识", "觉醒", "漂浮", "光辉", "虚空",
+  "连接", "孤独", "和谐", "混沌", "律动"
 ];
 
 const MOCK_TEMPLATES = [
-  "This dream suggests a desire to transcend current limitations and view your life from a higher perspective.",
-  "The imagery reveals a deep connection to the unknown, urging you to embrace uncertainty.",
-  "A manifestation of inner peace and the search for silence amidst the noise of daily existence.",
-  "Your subconscious is projecting a need for balance between the logical and the emotional realms.",
-  "The vibrant colors indicate a burst of creativity waiting to be unleashed in your waking life."
+  "此梦境暗示您渴望超越当前局限，从更高视角审视人生。",
+  "图像揭示了与未知深处的连结，敦促您拥抱不确定性。",
+  "内在平静的显化，在日常喧嚣中寻求宁静。",
+  "您的潜意识投射出对逻辑与情感之间平衡的需求。",
+  "鲜艳的色彩预示着您清醒生活中即将迸发的创造力。"
 ];
 
 export const generateMockDream = async (inputText) => {
@@ -44,7 +38,7 @@ export const generateMockDream = async (inputText) => {
   // Wait for image to be fully loaded before returning
   const loadSuccess = await new Promise((resolve) => {
     const img = new Image();
-    img.crossOrigin = 'anonymous';
+    // 本地图片不需要 crossOrigin
 
     let timeout = setTimeout(() => {
       console.warn('Image load timeout:', imageUrl);

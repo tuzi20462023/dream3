@@ -1,15 +1,15 @@
 import React, { useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { Text, Line, Billboard, Float } from '@react-three/drei'
+import { Line, Billboard, Float, Html } from '@react-three/drei'
 import * as THREE from 'three'
 
 const beliefs = [
-    { id: 1, label: "Freedom", position: [3, 2, 0], color: "#ffaa00", size: 0.3 },
-    { id: 2, label: "Anxiety", position: [-3, 0, 1], color: "#ff0055", size: 0.25 },
-    { id: 3, label: "Creativity", position: [0, 3, -1], color: "#00aaff", size: 0.35 },
-    { id: 4, label: "Nostalgia", position: [2, -2, 1], color: "#aa00ff", size: 0.2 },
-    { id: 5, label: "Nature", position: [-2, -2, -2], color: "#00ffaa", size: 0.25 },
-    { id: 6, label: "Unknown", position: [0, 0, 3], color: "#ffffff", size: 0.15 },
+    { id: 1, label: "自由", position: [3, 2, 0], color: "#ffaa00", size: 0.3 },
+    { id: 2, label: "焦虑", position: [-3, 0, 1], color: "#ff0055", size: 0.25 },
+    { id: 3, label: "创造", position: [0, 3, -1], color: "#00aaff", size: 0.35 },
+    { id: 4, label: "怀旧", position: [2, -2, 1], color: "#aa00ff", size: 0.2 },
+    { id: 5, label: "自然", position: [-2, -2, -2], color: "#00ffaa", size: 0.25 },
+    { id: 6, label: "未知", position: [0, 0, 3], color: "#ffffff", size: 0.15 },
 ]
 
 const connections = [
@@ -56,16 +56,30 @@ function BeliefNode({ position, color, size, label }) {
 
             {/* Label */}
             <Billboard position={[0, 0.5, 0]}>
-                <Text
-                    fontSize={0.3}
-                    color="white"
-                    anchorX="center"
-                    anchorY="middle"
-                    outlineWidth={0.02}
-                    outlineColor="black"
+                <Html 
+                    transform 
+                    center 
+                    position={[0, 0, 0]} 
+                    style={{ pointerEvents: 'none' }}
+                    distanceFactor={8} // Scale down with distance to match 3D scale
                 >
-                    {label}
-                </Text>
+                    <div style={{
+                        color: 'white',
+                        fontFamily: "'Noto Serif SC', serif",
+                        fontSize: '3px', // Large base size for scaling
+                        whiteSpace: 'nowrap',
+                        letterSpacing: '0.1em',
+                        textShadow: `
+                            -1px -1px 0 #000,  
+                             1px -1px 0 #000,
+                            -1px  1px 0 #000,
+                             1px  1px 0 #000, /* Simulated Outline */
+                             0 0 5px ${color} /* Glow */
+                        `
+                    }}>
+                        {label}
+                    </div>
+                </Html>
             </Billboard>
         </group>
     )

@@ -96,49 +96,60 @@ const DreamModal = ({ dream, onClose }) => {
         exit={{ scale: 0.9, y: 20 }}
         onClick={(e) => e.stopPropagation()}
         style={{
-          background: 'rgba(255,255,255,0.05)',
+          background: 'rgba(20, 25, 35, 0.6)', // Darker, matching new glass style
+          backdropFilter: 'blur(30px) saturate(120%)',
           border: '1px solid rgba(255,255,255,0.1)',
-          borderRadius: '20px',
-          padding: '40px',
-          maxWidth: '500px',
+          borderRadius: '24px',
+          padding: '3.5rem 4rem', // Increased padding
+          maxWidth: '600px', // Wider card
           width: '90%',
           color: 'white',
-          boxShadow: '0 20px 50px rgba(0,0,0,0.5)'
+          boxShadow: '0 40px 100px -20px rgba(0,0,0,0.6)'
         }}
       >
         <h2 style={{
-          fontFamily: 'Montserrat, sans-serif',
-          fontSize: '2rem',
-          marginBottom: '10px',
-          letterSpacing: '0.1em'
+          fontFamily: "'Noto Serif SC', serif",
+          fontSize: '2.5rem', // Larger title
+          marginBottom: '0.5rem',
+          letterSpacing: '0.3em',
+          textAlign: 'center', // Center align title
+          textShadow: '0 0 20px rgba(255,255,255,0.2)'
         }}>
           {dream.title}
         </h2>
         <div style={{
           color: 'rgba(255,255,255,0.5)',
-          marginBottom: '30px',
+          marginBottom: '3rem', // More space after header
           fontSize: '0.9rem',
-          letterSpacing: '0.05em'
+          letterSpacing: '0.1em',
+          fontFamily: "'Noto Serif SC', serif",
+          textAlign: 'center'
         }}>
           {dream.date}
         </div>
         <p style={{
-          lineHeight: '1.8',
-          color: 'rgba(255,255,255,0.8)',
-          fontSize: '1.1rem',
-          marginBottom: '40px'
+          lineHeight: '2.2', // Very loose line height for elegance
+          color: 'rgba(255,255,255,0.9)',
+          fontSize: '1.15rem',
+          marginBottom: '3rem',
+          fontFamily: "'Noto Serif SC', serif",
+          textAlign: 'justify', // Justify block text
+          textIndent: '2em' // Chinese paragraph indent
         }}>
-          {dream.description || "No description available for this dream."}
+          {dream.description || "此梦境暂无详细记录。"}
         </p>
 
-        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
           {dream.keywords && dream.keywords.map((kw, i) => (
             <span key={i} style={{
-              background: 'rgba(255,255,255,0.1)',
-              padding: '5px 15px',
-              borderRadius: '15px',
-              fontSize: '0.8rem',
-              color: 'rgba(255,255,255,0.8)'
+              background: 'rgba(255,255,255,0.08)',
+              border: '1px solid rgba(255,255,255,0.15)',
+              padding: '0.6rem 1.5rem',
+              borderRadius: '100px',
+              fontSize: '0.85rem',
+              color: 'rgba(255,255,255,0.8)',
+              fontFamily: "'Noto Serif SC', serif",
+              letterSpacing: '0.1em'
             }}>
               #{kw}
             </span>
@@ -335,13 +346,8 @@ const GalleryScene = ({ onBack, dreams }) => {
           <button
             onClick={onBack}
             className="gallery-back-btn"
-            style={{
-              background: 'transparent', border: 'none', color: 'white', cursor: 'pointer',
-              fontFamily: 'Montserrat, sans-serif', textTransform: 'uppercase', letterSpacing: '0.2em',
-              fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '10px', opacity: 0.8
-            }}
           >
-            <span>←</span> BACK
+            <span>←</span> 返回
           </button>
         </div>
       )}
@@ -350,10 +356,10 @@ const GalleryScene = ({ onBack, dreams }) => {
       {viewMode === 'timeline' && (
         <div style={{
           position: 'absolute', bottom: '3rem', width: '100%', textAlign: 'center',
-          color: 'rgba(255,255,255,0.3)', fontFamily: 'Montserrat, sans-serif', fontSize: '0.7rem',
+          color: 'rgba(255,255,255,0.3)', fontFamily: "'Noto Serif SC', serif", fontSize: '0.8rem',
           pointerEvents: 'none', letterSpacing: '0.4em', textTransform: 'uppercase'
         }}>
-          Drag to Rotate • Scroll to Explore
+          拖拽旋转 • 滚动探索
         </div>
       )}
 

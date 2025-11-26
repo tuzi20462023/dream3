@@ -1,6 +1,6 @@
 import React, { useRef, useMemo, forwardRef } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { MeshTransmissionMaterial, Float, Text, Environment, Billboard } from '@react-three/drei'
+import { MeshTransmissionMaterial, Float, Environment, Billboard, Html } from '@react-three/drei'
 import * as THREE from 'three'
 
 // --- Sub-Component: Light Rays (God Rays) ---
@@ -237,25 +237,21 @@ const SoulPrism = forwardRef(({ onClick, active, position, charging }, ref) => {
       </Float>
 
       <group position={[0, -2.2, 0]} visible={active && !charging}>
-        <Text
-          fontSize={0.18}
-          color="white"
-          letterSpacing={0.2}
-          fillOpacity={0.9} // 提高文字亮度
-          anchorX="center"
-        >
-          CRYSTALLIZE
-        </Text>
-        <Text
-          position={[0, -0.25, 0]}
-          fontSize={0.12}
-          color="white"
-          letterSpacing={0.1}
-          fillOpacity={0.5}
-          anchorX="center"
-        >
-          BELIEFS
-        </Text>
+        <Html transform position={[0, 0, 0]} center style={{ pointerEvents: 'none' }}>
+            <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                opacity: 0.9,
+                color: 'white',
+                fontFamily: "'Noto Serif SC', serif",
+                textShadow: '0 0 10px rgba(0,0,0,0.5)',
+                whiteSpace: 'nowrap'
+            }}>
+                <div style={{ fontSize: '18px', letterSpacing: '0.2em' }}>凝 结</div>
+                <div style={{ fontSize: '12px', letterSpacing: '0.1em', opacity: 0.5 }}>信 念</div>
+            </div>
+        </Html>
       </group>
 
       {/* 1. Premium Volumetric Glow (The "Aura") */}

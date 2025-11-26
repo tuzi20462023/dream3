@@ -11,6 +11,7 @@ const AuroraMaterial = shaderMaterial(
   {
     uTime: 0,
     uOpacity: 0.0,
+    uDisplace: 1.0, // Default displacement
     uResolution: new THREE.Vector2(0, 0),
     // Palette: Deep Indigo Base -> Electric Violet -> Deep Cyan -> Warm Peach
     uColor1: new THREE.Color('#050014'), // Deepest Indigo (Almost Black)
@@ -24,7 +25,7 @@ const AuroraMaterial = shaderMaterial(
 
 extend({ AuroraMaterial })
 
-export default function AuroraBackground({ width = 14, height = 8, opacity = 1, ...props }) {
+export default function AuroraBackground({ width = 14, height = 8, opacity = 1, displace = 1.0, ...props }) {
   const materialRef = useRef()
   const currentOpacity = useRef(0)
 
@@ -37,6 +38,7 @@ export default function AuroraBackground({ width = 14, height = 8, opacity = 1, 
       materialRef.current.uTime += delta
       currentOpacity.current = THREE.MathUtils.lerp(currentOpacity.current, opacity, delta * 0.8)
       materialRef.current.uOpacity = currentOpacity.current
+      materialRef.current.uDisplace = displace
     }
   })
 

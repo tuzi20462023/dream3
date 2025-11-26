@@ -6,7 +6,7 @@ import { generateMockDream } from '../utils/mockDreamGenerator'
 
 // 简单的 SVG 图标组件
 const MicIcon = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
     <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
     <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
     <line x1="12" y1="19" x2="12" y2="23"></line>
@@ -15,7 +15,7 @@ const MicIcon = () => (
 )
 
 const RefreshIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
     <path d="M23 4v6h-6"></path>
     <path d="M1 20v-6h6"></path>
     <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
@@ -35,7 +35,7 @@ export default function InputInterface({ appState, setAppState, onDreamGenerated
       console.log("Recording started...")
     } else {
       console.log("Recording stopped.")
-      setInput("I was flying over a city made of crystal, and the sky was filled with geometric auroras...")
+      setInput("我飞过一座水晶构成的城市，天空中充满了几何形状的极光...")
     }
   }
 
@@ -108,14 +108,14 @@ export default function InputInterface({ appState, setAppState, onDreamGenerated
             exit={{ opacity: 0, scale: 0.95, filter: "blur(10px)" }}
             transition={{ duration: 0.8, ease: [0.19, 1, 0.22, 1] }}
           >
-            <h1 className="title">Dream Journal</h1>
-            <p className="subtitle">Materialize your subconscious</p>
+            <h1 className="title">梦 境 档 案</h1>
+            <p className="subtitle">将 潜 意 识 具 象 化</p>
 
             <form onSubmit={handleSubmit} className="input-group">
               <input
                 type="text"
                 className="dream-input"
-                placeholder="Describe your dream..."
+                placeholder="记 录 你 的 潜 意 识 ..."
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 autoFocus
@@ -127,7 +127,7 @@ export default function InputInterface({ appState, setAppState, onDreamGenerated
                 className={`icon-btn ${isRecording ? 'recording' : ''}`}
                 onClick={handleRecord}
                 whileTap={{ scale: 0.9 }}
-                title="Voice Input"
+                title="语音输入"
               >
                 <MicIcon />
               </motion.button>
@@ -141,7 +141,7 @@ export default function InputInterface({ appState, setAppState, onDreamGenerated
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  Materialize
+                  显 化
                 </motion.button>
               ) : (
                 <motion.button
@@ -152,7 +152,7 @@ export default function InputInterface({ appState, setAppState, onDreamGenerated
                   whileHover={{ scale: 1.05, opacity: 1 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  View Gallery
+                  查 看 画 廊
                 </motion.button>
               )}
             </div>
@@ -169,7 +169,7 @@ export default function InputInterface({ appState, setAppState, onDreamGenerated
             exit={{ opacity: 0 }}
           >
             <div className="spinner"></div>
-            <p>Weaving dream threads...</p>
+            <p>正在编织梦境...</p>
           </motion.div>
         )}
 
@@ -208,7 +208,7 @@ export default function InputInterface({ appState, setAppState, onDreamGenerated
                     onClick={handleRegenerate}
                     whileHover={!isProcessingRef.current ? { scale: 1.02 } : {}}
                     whileTap={!isProcessingRef.current ? { scale: 0.95 } : {}}
-                    title="Regenerate"
+                    title="重新生成"
                     style={{
                       opacity: appState === 'processing' ? 0.5 : 1,
                       cursor: appState === 'processing' ? 'not-allowed' : 'pointer',
@@ -216,7 +216,7 @@ export default function InputInterface({ appState, setAppState, onDreamGenerated
                     }}
                 >
                     <RefreshIcon />
-                    <span>Regenerate</span>
+                    <span>重新生成</span>
                 </motion.button>
 
                 <motion.button
@@ -225,7 +225,7 @@ export default function InputInterface({ appState, setAppState, onDreamGenerated
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                 >
-                    Enter Dreamscape
+                    潜 入 梦 境
                 </motion.button>
               </div>
             </div>
