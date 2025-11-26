@@ -1,6 +1,6 @@
 import React, { useRef, useState, useMemo } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
-import { useScroll, Billboard, Html } from '@react-three/drei'
+import { useScroll, Billboard, Text } from '@react-three/drei'
 import * as THREE from 'three'
 import DreamParticles from "./DreamParticles";
 
@@ -250,40 +250,25 @@ function CarouselItem({ dream, index, scrollOffset, totalItems, onClick, onHover
                 </group>
 
                 <group ref={textGroup}>
-                    <Html
-                        transform
-                        sprite
-                        center
-                        position={[0, 0, 0]}
-                        style={{
-                            fontFamily: "'Noto Serif SC', serif",
-                            textAlign: 'center',
-                            pointerEvents: 'none',
-                            userSelect: 'none',
-                            opacity: hovered ? 1 : 0.7,
-                            transition: 'opacity 0.3s',
-                            whiteSpace: 'nowrap'
-                        }}
+                    <Text
+                        fontSize={0.5}
+                        color={hovered ? "#ffffff" : "#aaaaaa"}
+                        anchorX="center"
+                        anchorY="middle"
+                        fillOpacity={hovered ? 1 : 0.7}
                     >
-                        <div style={{
-                            fontSize: '20px',
-                            color: hovered ? "#ffffff" : "#aaaaaa",
-                            letterSpacing: '0.2em',
-                            fontWeight: 300,
-                            marginBottom: '4px',
-                            textShadow: '0 0 10px rgba(0,0,0,0.5)'
-                        }}>
-                            {dream.title}
-                        </div>
-                        <div style={{
-                            fontSize: '10px',
-                            color: hovered ? "#cccccc" : "#666666",
-                            letterSpacing: '0.1em',
-                            fontWeight: 200
-                        }}>
-                            {dream.date}
-                        </div>
-                    </Html>
+                        {dream.title}
+                    </Text>
+                    <Text
+                        fontSize={0.2}
+                        position={[0, -0.5, 0]}
+                        color={hovered ? "#cccccc" : "#666666"}
+                        anchorX="center"
+                        anchorY="middle"
+                        letterSpacing={0.1}
+                    >
+                        {dream.date}
+                    </Text>
                 </group>
             </group>
 
