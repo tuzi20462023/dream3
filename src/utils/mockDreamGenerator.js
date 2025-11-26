@@ -1,13 +1,16 @@
 // Mock data for AI generation
 const MOCK_IMAGES = [
+  // 方法1: 使用本地图片（放在 public/images/ 文件夹）
+  "/images/dream1.jpg",
+  "/images/dream2.png",
+  "/images/galaxy.webp",
+
+  // 方法2: 继续使用 Unsplash（可混用）
   "https://images.unsplash.com/photo-1464802686167-b939a6910659?q=80&w=1000&auto=format&fit=crop", // Galaxy
   "https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=1000&auto=format&fit=crop", // Abstract landscape
-  "https://images.unsplash.com/photo-1518837695005-2083093ee35b?q=80&w=1000&auto=format&fit=crop", // Northern lights (replaced 404)
+  "https://images.unsplash.com/photo-1518837695005-2083093ee35b?q=80&w=1000&auto=format&fit=crop", // Northern lights
   "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1000&auto=format&fit=crop", // Earth from space
   "https://images.unsplash.com/photo-1518066000714-58c45f1a2c0a?q=80&w=1000&auto=format&fit=crop", // Crystal
-  "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=1000&auto=format&fit=crop", // Cosmic
-  "https://images.unsplash.com/photo-1510942201312-84e7962f6dbb?q=80&w=1000&auto=format&fit=crop", // Neon
-  "https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?q=80&w=1000&auto=format&fit=crop", // Night sky
 ];
 
 const MOCK_KEYWORDS = [
