@@ -111,7 +111,7 @@ void main() {
   // Distance from mouse to particle (assuming mouse is projected to z=0 plane mostly)
   // Simple "Repel" effect with stronger whisper feel
   float dist = distance(pos.xy, uMouse.xy);
-  float force = smoothstep(3.0, 0.0, dist) * uHover; // Radius increased from 1.5 to 3.0
+  float force = smoothstep(1.5, 0.0, dist) * uHover; // Radius reduced from 3.0 to 1.5
   pos += normalize(pos - vec3(uMouse.xy, 0.0)) * force * 3.0; // Force strength increased from 1.0 to 3.0
 
   vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
@@ -133,7 +133,7 @@ void main() {
 
   // Alpha calculation - REDUCED OPACITY to prevent center glare
   // Base alpha is lower (0.5 max instead of 0.8)
-  vAlpha = 0.5 - smoothstep(0.0, 6.0, length(pos)); 
+  vAlpha = 0.8 - smoothstep(0.0, 6.0, length(pos)); // Increased base alpha from 0.5 to 0.8 for visibility
   vAlpha *= (0.5 + 0.5 * aRandom.x); // Variation
 }
 `
@@ -163,7 +163,7 @@ function SoulCloud({ mousePos }) {
     const geometryRef = useRef()
 
     // Generate Particles
-    const particleCount = 3500 // Restored to original density for full visual effect
+    const particleCount = 2000 // Reduced from 3000 for better performance
     const { positions, sizes, speeds, randoms } = useMemo(() => {
         const positions = []
         const sizes = []
@@ -300,7 +300,7 @@ export default function HolisticReport({ onBack, prismPosition }) {
         <group position={[0, 0, -5]}>
             
             {/* Background Haze / Fog - Scaled up significantly to envelop the view in blue/violet */}
-            <AuroraBackground position={[0, 0, -15]} width={50} height={30} opacity={0.2} displace={1.2} />
+            <AuroraBackground position={[0, 0, -15]} width={50} height={30} opacity={0.1} displace={1.2} />
 
             {/* 1. Abstract Soul Cloud (The Core) */}
             <SoulCloud mousePos={mousePos} />

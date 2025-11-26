@@ -110,35 +110,25 @@ const DreamModal = ({ dream, onClose }) => {
         <h2 style={{
           fontFamily: "'Noto Serif SC', serif",
           fontSize: '2.2rem', 
-          marginBottom: '0.8rem',
-          letterSpacing: '0.4em', // Wider spacing
+          marginBottom: '3.5rem', 
+          letterSpacing: '0.4em', 
           textAlign: 'center', 
           fontWeight: 300,
-          textShadow: '0 0 30px rgba(255,255,255,0.15)',
-          marginRight: '-0.4em' // Compensate for spacing
+          textShadow: '0 0 30px rgba(255,255,255,0.15)'
+          // Removed marginRight to fix centering
         }}>
           {dream.title}
         </h2>
-        <div style={{
-          color: 'rgba(255,255,255,0.4)',
-          marginBottom: '3.5rem', 
-          fontSize: '0.85rem',
-          letterSpacing: '0.2em',
-          fontFamily: "'Noto Serif SC', serif",
-          textAlign: 'center',
-          marginRight: '-0.2em'
-        }}>
-          {dream.date}
-        </div>
+        {/* Removed date div to avoid duplication and adjusted title margin */}
         <p style={{
-          lineHeight: '2.4', // Even looser
+          lineHeight: '2.4', 
           color: 'rgba(255,255,255,0.85)',
           fontSize: '1.1rem',
-          marginBottom: '1rem', // Less bottom margin since no tags
+          marginBottom: '1rem', 
           fontFamily: "'Noto Serif SC', serif",
-          textAlign: 'justify', 
+          textAlign: 'center', // Changed from 'justify' to 'center'
           letterSpacing: '0.05em',
-          padding: '0 1rem' // Inner padding for text block
+          padding: '0 1rem' 
         }}>
           {dream.description || "此梦境暂无详细记录。"}
         </p>
@@ -296,9 +286,9 @@ const GalleryScene = ({ onBack, dreams }) => {
           <Bloom luminanceThreshold={0.2} mipmapBlur intensity={0.8} radius={0.6} />
           <Vignette eskil={false} offset={0.1} darkness={1.1} />
           <DepthOfField 
-            target={[0, 0, viewMode === 'analysis' ? -10 : 0]} 
+            target={[0, 0, viewMode === 'analysis' ? -5 : 0]} // Fix focus: Target the report at Z=-5
             focalLength={0.02} 
-            bokehScale={viewMode === 'analysis' ? 5 : 0} // No blur during charging, moderate blur in analysis
+            bokehScale={viewMode === 'analysis' ? 0 : 0} // Disable blur in analysis mode for clarity and performance
             height={480} 
           />
         </EffectComposer>

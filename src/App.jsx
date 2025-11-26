@@ -24,12 +24,14 @@ function App() {
     if (dreamData) {
       const newDream = {
         id: Date.now(),
-        title: dreamData.keywords[0] || "Untitled Dream",
-        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        // 标题只显示日期
+        title: new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' }),
+        date: new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' }),
         imageUrl: dreamData.imageUrl,
-        description: dreamData.analysis, // Save analysis as description
+        // 用户输入保存到 description，点开详情卡片时显示
+        description: dreamData.inputText || "无题之梦",
         keywords: dreamData.keywords,
-        color: '#ffffff' // Default or random color
+        color: '#ffffff'
       }
       setGalleryDreams(prev => [newDream, ...prev])
     }

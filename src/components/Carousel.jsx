@@ -252,29 +252,20 @@ function CarouselItem({ dream, index, scrollOffset, totalItems, onClick, onHover
                 </group>
 
                 <group ref={textGroup}>
-                    <Text
-                        font={fontUrl}
-                        fontSize={0.5}
-                        color={hovered ? "#ffffff" : "#aaaaaa"}
-                        anchorX="center"
-                        anchorY="middle"
-                        fillOpacity={hovered ? 1 : 0.7}
-                        // Specify known characters to ensure they are generated in the SDF if not automatically handled
-                        characters="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]{}|;':,./<>?水晶之城霓虹森林深海飞行金色荒漠宇宙阶梯纯净透视易碎赛博共生迷幻失重深渊静谧辉煌孤独永恒飞升无限维度凝结信念自由焦虑创造怀旧自然未知探寻者梦境原型"
-                    >
-                        {dream.title}
-                    </Text>
-                    <Text
-                        font={fontUrl}
-                        fontSize={0.2}
-                        position={[0, -0.4, 0]}
-                        color={hovered ? "#cccccc" : "#666666"}
-                        anchorX="center"
-                        anchorY="middle"
-                        letterSpacing={0.1}
-                    >
-                        {dream.date}
-                    </Text>
+                    <Billboard>
+                        <Text
+                            font={fontUrl}
+                            fontSize={0.4} // Adjusted font size for date
+                            color={hovered ? "#ffffff" : "#aaaaaa"}
+                            anchorX="center"
+                            anchorY="middle"
+                            fillOpacity={hovered ? 1 : 0.7}
+                            characters="年月日月0123456789"
+                        >
+                            {dream.date}
+                        </Text>
+                    </Billboard>
+                    {/* Removed second Text component for '梦境档案' */}
                 </group>
             </group>
 

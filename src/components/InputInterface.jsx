@@ -200,7 +200,7 @@ export default function InputInterface({ appState, setAppState, onDreamGenerated
                   <span key={i} className="keyword-chip">{kw}</span>
                 ))}
               </div>
-              <p className="analysis-text">{localDreamData.analysis}</p>
+              <p className="analysis-text">{localDreamData.inputText}</p>
               
               <div className="action-buttons">
                 <motion.button
