@@ -1,10 +1,16 @@
 // Mock data for AI generation
 const MOCK_IMAGES = [
-  // 本地图片 (放在 public/images/ 目录下)
-  "/images/1.png",
-  "/images/2.png",
-  "/images/3.png",
-  "/images/4.png",
+  // 本地图片 (放在 public/images/ 目录下，已压缩)
+  "/images/1.jpg",
+  "/images/2.jpg",
+  "/images/3.jpg",
+  "/images/4.jpg",
+  // Unsplash 预设图片
+  "https://images.unsplash.com/photo-1464802686167-b939a6910659?q=80&w=1000&auto=format&fit=crop", // Galaxy
+  "https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=1000&auto=format&fit=crop", // Abstract landscape
+  "https://images.unsplash.com/photo-1518837695005-2083093ee35b?q=80&w=1000&auto=format&fit=crop", // Northern lights
+  "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1000&auto=format&fit=crop", // Earth from space
+  "https://images.unsplash.com/photo-1518066000714-58c45f1a2c0a?q=80&w=1000&auto=format&fit=crop", // Crystal
 ];
 
 const MOCK_KEYWORDS = [
@@ -38,7 +44,10 @@ export const generateMockDream = async (inputText) => {
   // Wait for image to be fully loaded before returning
   const loadSuccess = await new Promise((resolve) => {
     const img = new Image();
-    // 本地图片不需要 crossOrigin
+    // 远程图片需要 crossOrigin，本地图片不需要
+    if (imageUrl.startsWith('http')) {
+      img.crossOrigin = 'anonymous';
+    }
 
     let timeout = setTimeout(() => {
       console.warn('Image load timeout:', imageUrl);
