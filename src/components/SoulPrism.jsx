@@ -252,7 +252,7 @@ const SoulPrism = forwardRef(({ onClick, active, position, charging }, ref) => {
                 toneMapped={false} 
                 characters="凝结信念"
             >
-                凝 结
+                凝 • 结
             </Text>
             <Text
                 font="https://cdn.jsdelivr.net/npm/@openfonts/noto-serif-sc_chinese-simplified@1.44.2/files/noto-serif-sc-chinese-simplified-400.woff"
@@ -265,7 +265,7 @@ const SoulPrism = forwardRef(({ onClick, active, position, charging }, ref) => {
                 fillOpacity={0.8}
                 characters="凝结信念"
             >
-                信 念
+                信 • 念
             </Text>
         </group>
       )}

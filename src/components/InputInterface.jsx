@@ -108,14 +108,14 @@ export default function InputInterface({ appState, setAppState, onDreamGenerated
             exit={{ opacity: 0, scale: 0.95, filter: "blur(10px)" }}
             transition={{ duration: 0.8, ease: [0.19, 1, 0.22, 1] }}
           >
-            <h1 className="title">梦 境 档 案</h1>
-            <p className="subtitle">将 潜 意 识 具 象 化</p>
+            <h1 className="title">梦 境 • 档 案</h1>
+            <p className="subtitle">潜 意 识 • 具 象 化</p>
 
             <form onSubmit={handleSubmit} className="input-group">
               <input
                 type="text"
                 className="dream-input"
-                placeholder="记 录 你 的 潜 意 识 ..."
+                placeholder="记 录 潜 意 识 的 碎 片 ..."
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 autoFocus
@@ -141,7 +141,7 @@ export default function InputInterface({ appState, setAppState, onDreamGenerated
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  显 化
+                  显 化 • 梦 境
                 </motion.button>
               ) : (
                 <motion.button
@@ -152,7 +152,7 @@ export default function InputInterface({ appState, setAppState, onDreamGenerated
                   whileHover={{ scale: 1.05, opacity: 1 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  查 看 画 廊
+                  梦 境 回 廊
                 </motion.button>
               )}
             </div>
@@ -169,7 +169,7 @@ export default function InputInterface({ appState, setAppState, onDreamGenerated
             exit={{ opacity: 0 }}
           >
             <div className="spinner"></div>
-            <p>正在编织梦境...</p>
+            <p>梦 境 编 织 中 ...</p>
           </motion.div>
         )}
 
@@ -216,7 +216,7 @@ export default function InputInterface({ appState, setAppState, onDreamGenerated
                     }}
                 >
                     <RefreshIcon />
-                    <span>重新生成</span>
+                    <span>重 塑 梦 境</span>
                 </motion.button>
 
                 <motion.button
@@ -225,7 +225,7 @@ export default function InputInterface({ appState, setAppState, onDreamGenerated
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                 >
-                    潜 入 梦 境
+                    沉 入 • 梦 境
                 </motion.button>
               </div>
             </div>

@@ -29,7 +29,7 @@ function App() {
         date: new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' }),
         imageUrl: dreamData.imageUrl,
         // 用户输入保存到 description，点开详情卡片时显示
-        description: dreamData.inputText || "无题之梦",
+        description: dreamData.inputText || "无 题 • 梦",
         keywords: dreamData.keywords,
         color: '#ffffff'
       }
@@ -108,13 +108,13 @@ function App() {
             borderRadius: '20px',
             cursor: 'pointer',
             backdropFilter: 'blur(10px)',
-            fontFamily: 'Montserrat, sans-serif',
+            fontFamily: "'Noto Serif SC', serif",
             textTransform: 'uppercase',
-            letterSpacing: '0.1em',
-            fontSize: '0.8rem'
+            letterSpacing: '0.2em',
+            fontSize: '0.9rem'
           }}
         >
-          Enter Gallery
+          梦 境 回 廊
         </button>
       </div>
 

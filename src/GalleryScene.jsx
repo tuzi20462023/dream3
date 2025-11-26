@@ -130,7 +130,7 @@ const DreamModal = ({ dream, onClose }) => {
           letterSpacing: '0.05em',
           padding: '0 1rem' 
         }}>
-          {dream.description || "此梦境暂无详细记录。"}
+          {dream.description || "此 梦 境 记 忆 模 糊 ..."}
         </p>
 
         {/* Removed Keywords Section */}
@@ -327,7 +327,7 @@ const GalleryScene = ({ onBack, dreams }) => {
             onClick={onBack}
             className="gallery-back-btn"
           >
-            <span>←</span> 返回
+            <span>←</span> 返 回 梦 境
           </button>
         </div>
       )}
@@ -339,7 +339,7 @@ const GalleryScene = ({ onBack, dreams }) => {
           color: 'rgba(255,255,255,0.3)', fontFamily: "'Noto Serif SC', serif", fontSize: '0.8rem',
           pointerEvents: 'none', letterSpacing: '0.4em', textTransform: 'uppercase'
         }}>
-          拖拽旋转 • 滚动探索
+          凝 视 • 旋 转  |  漫 游 • 探 索
         </div>
       )}
 

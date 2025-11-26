@@ -332,7 +332,7 @@ export default function HolisticReport({ onBack, prismPosition }) {
                                     color: 'rgba(255,255,255,0.6)',
                                     margin: 0,
                                     textShadow: '0 0 10px rgba(0,0,0,0.8)' // Strong black shadow for contrast
-                                }}>梦 境 原 型</h2>
+                                }}>梦 境 • 原 型</h2>
                                 <h1 style={{ 
                                     fontFamily: "'Noto Serif SC', serif", 
                                     fontSize: '4rem', // Slightly smaller for Chinese balance
@@ -343,7 +343,7 @@ export default function HolisticReport({ onBack, prismPosition }) {
                                     letterSpacing: '0.2em', // Added letter spacing for ethereal feel
                                     // Layered shadows: Strong black backdrop + Subtle colored glow
                                     textShadow: '0 0 30px rgba(0,0,0,1), 0 0 10px rgba(0,0,0,1)' 
-                                }}>探 寻 者</h1>
+                                }}>探 • 寻 • 者</h1>
                             </motion.div>
                         </Html>
             
@@ -380,9 +380,9 @@ export default function HolisticReport({ onBack, prismPosition }) {
             
                         {/* Floating Attribute Labels - Orbiting the cloud */}
                         {/* Static positions after entry for readability */}
-                        <FloatingLabel text="清明度 85%" position={[-3.5, 0.5, 0]} delay={1.5} align="right" />
-                        <FloatingLabel text="混沌度 30%" position={[3.5, 1.5, 0]} delay={1.8} align="left" />
-                        <FloatingLabel text="深度 92%" position={[0, -3.0, 0]} delay={2.1} align="center" />
+                        <FloatingLabel text="清 明 度 • 85%" position={[-3.5, 0.5, 0]} delay={1.5} align="right" />
+                        <FloatingLabel text="混 沌 度 • 30%" position={[3.5, 1.5, 0]} delay={1.8} align="left" />
+                        <FloatingLabel text="深 度 • 92%" position={[0, -3.0, 0]} delay={2.1} align="center" />
             
                         {/* Close Interaction - Subtle bottom center */}
                         <Html position={[0, -4.0, 0]} center transform zIndexRange={[1000, 0]}>
@@ -406,7 +406,7 @@ export default function HolisticReport({ onBack, prismPosition }) {
                                     textShadow: '0 0 10px black'
                                 }}
                             >
-                                归 隐 梦 境
+                                归 • 隐 • 梦 • 境
                             </motion.button>
                         </Html>
         </group>
