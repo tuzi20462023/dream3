@@ -5,6 +5,7 @@ import * as THREE from 'three'
 import { motion } from 'framer-motion'
 
 import AuroraBackground from './AuroraBackground'
+import { dreamStorage } from '../utils/dreamStorage'
 
 // --- SHADERS ---
 
@@ -281,6 +282,8 @@ function FloatingLabel({ text, position, delay, align = 'left' }) {
 
 export default function HolisticReport({ onBack, prismPosition }) {
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
+    const [analysis, setAnalysis] = useState(null)
+    const [isLoading, setIsLoading] = useState(true)
     const { viewport } = useThree()
 
     // Track mouse for interaction
@@ -294,6 +297,63 @@ export default function HolisticReport({ onBack, prismPosition }) {
         }
         window.addEventListener('mousemove', handleMove)
         return () => window.removeEventListener('mousemove', handleMove)
+    }, [])
+
+    // 分析梦境
+    useEffect(() => {
+        const analyzeDreams = async () => {
+            try {
+                const allDreams = dreamStorage.getRecentDreams(10)
+
+                // 只分析用户创建的梦境，排除系统预设
+                const userDreams = allDreams.filter(d => d.isUserCreated === true)
+
+                if (userDreams.length < 3) {
+                    console.log(`💭 用户梦境不足 3 个（当前 ${userDreams.length} 个），使用默认分析`)
+                    setAnalysis({
+                        archetype: "探寻者",
+                        description: "通过潜意识的抽象迷雾，升华至清明澄澈之境。",
+                        clarity: 75,
+                        chaos: 40,
+                        depth: 85
+                    })
+                    setIsLoading(false)
+                    return
+                }
+
+                console.log(`🔮 开始分析 ${userDreams.length} 个用户梦境`)
+
+                const response = await fetch(
+                    'https://pcolyjkqfznorelcxkvb.supabase.co/functions/v1/analyze-belief',
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBjb2x5amtxZnpub3JlbGN4a3ZiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU2ODg4OTAsImV4cCI6MjA4MTI2NDg5MH0.drUwcasIa0tN1p7niQxypUKZt6BgsXHr3RXKWzv_svs'
+                        },
+                        body: JSON.stringify({ dreams: userDreams }) // 只发送用户梦境
+                    }
+                )
+
+                const data = await response.json()
+                console.log('✨ 分析结果:', data)
+                setAnalysis(data)
+            } catch (error) {
+                console.error('❌ 分析失败:', error)
+                // 使用默认值
+                setAnalysis({
+                    archetype: "探寻者",
+                    description: "通过潜意识的抽象迷雾，升华至清明澄澈之境。",
+                    clarity: 75,
+                    chaos: 40,
+                    depth: 85
+                })
+            } finally {
+                setIsLoading(false)
+            }
+        }
+
+        analyzeDreams()
     }, [])
 
     return (
@@ -325,25 +385,27 @@ export default function HolisticReport({ onBack, prismPosition }) {
                                 }}
                                 style={{ textAlign: 'left' }}
                             >
-                                <h2 style={{ 
-                                    fontFamily: "'Noto Serif SC', serif", 
-                                    fontSize: '0.8rem', 
-                                    letterSpacing: '0.4em', 
+                                <h2 style={{
+                                    fontFamily: "'Noto Serif SC', serif",
+                                    fontSize: '0.8rem',
+                                    letterSpacing: '0.4em',
                                     color: 'rgba(255,255,255,0.6)',
                                     margin: 0,
                                     textShadow: '0 0 10px rgba(0,0,0,0.8)' // Strong black shadow for contrast
                                 }}>梦 境 • 原 型</h2>
-                                <h1 style={{ 
-                                    fontFamily: "'Noto Serif SC', serif", 
+                                <h1 style={{
+                                    fontFamily: "'Noto Serif SC', serif",
                                     fontSize: '4rem', // Slightly smaller for Chinese balance
-                                    fontWeight: 300, 
+                                    fontWeight: 300,
                                     fontStyle: 'normal', // Chinese rarely uses italics
                                     color: 'white',
                                     margin: 0,
                                     letterSpacing: '0.2em', // Added letter spacing for ethereal feel
                                     // Layered shadows: Strong black backdrop + Subtle colored glow
-                                    textShadow: '0 0 30px rgba(0,0,0,1), 0 0 10px rgba(0,0,0,1)' 
-                                }}>探 • 寻 • 者</h1>
+                                    textShadow: '0 0 30px rgba(0,0,0,1), 0 0 10px rgba(0,0,0,1)'
+                                }}>
+                                    {isLoading ? '分 析 中 ...' : (analysis?.archetype || '探 • 寻 • 者').split('').join(' • ')}
+                                </h1>
                             </motion.div>
                         </Html>
             
@@ -365,24 +427,27 @@ export default function HolisticReport({ onBack, prismPosition }) {
                                 }}
                             >
                                 <p style={{
-                                    fontFamily: "'Noto Serif SC', serif", 
+                                    fontFamily: "'Noto Serif SC', serif",
                                     fontSize: '1rem',
                                     lineHeight: '1.8',
                                     color: '#e0e0ff', // Slight blue tint for readability
                                     textAlign: 'justify', // Justify text for blocky Chinese feel
                                     textShadow: '0 0 20px rgba(0,0,0,0.9)' // Heavy shadow
                                 }}>
-                                    “飞翔”揭示了灵魂超脱世俗的渴望。
-                                    通过潜意识的抽象迷雾，升华至清明澄澈之境。
+                                    {isLoading ? '正在分析您的梦境...' : (analysis?.description || '通过潜意识的抽象迷雾，升华至清明澄澈之境。')}
                                 </p>
                             </motion.div>
                         </Html>
             
                         {/* Floating Attribute Labels - Orbiting the cloud */}
                         {/* Static positions after entry for readability */}
-                        <FloatingLabel text="清 明 度 • 85%" position={[-3.5, 0.5, 0]} delay={1.5} align="right" />
-                        <FloatingLabel text="混 沌 度 • 30%" position={[3.5, 1.5, 0]} delay={1.8} align="left" />
-                        <FloatingLabel text="深 度 • 92%" position={[0, -3.0, 0]} delay={2.1} align="center" />
+                        {!isLoading && analysis && (
+                            <>
+                                <FloatingLabel text={`清 明 度 • ${analysis.clarity}%`} position={[-3.5, 0.5, 0]} delay={1.5} align="right" />
+                                <FloatingLabel text={`混 沌 度 • ${analysis.chaos}%`} position={[3.5, 1.5, 0]} delay={1.8} align="left" />
+                                <FloatingLabel text={`深 度 • ${analysis.depth}%`} position={[0, -3.0, 0]} delay={2.1} align="center" />
+                            </>
+                        )}
             
                         {/* Close Interaction - Subtle bottom center */}
                         <Html position={[0, -4.0, 0]} center transform zIndexRange={[1000, 0]}>

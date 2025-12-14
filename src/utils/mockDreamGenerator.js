@@ -1,3 +1,5 @@
+import { dreamStorage } from './dreamStorage';
+
 // Mock data for AI generation - Presets with matching image and description (所有使用在线图片)
 const DREAM_PRESETS = [
   {
@@ -106,12 +108,26 @@ export const generateMockDream = async (inputText) => {
       throw new Error('图片加载失败');
     }
 
-    return {
-      imageUrl: data.imageUrl,
+    const dreamData = {
+      imageUrl: data.imageUrl, // 保存完整的 base64 图片
       keywords: data.keywords,
       description: data.description,
-      inputText: data.inputText
+      inputText: data.inputText,
+      isUserCreated: true,
+      isAIGenerated: true
     };
+
+    // 保存前检查数量，最多保存 5 个梦境
+    const existingDreams = dreamStorage.getAllDreams();
+    if (existingDreams.length >= 5) {
+      console.log('📦 梦境已达上限，删除最旧的梦境');
+      dreamStorage.deleteOldest();
+    }
+
+    // 保存梦境到 localStorage（包含 AI 生成的 base64 图）
+    dreamStorage.saveDream(dreamData);
+
+    return dreamData;
 
   } catch (error) {
     console.error('❌ 生成梦境失败，使用预设:', error);
@@ -123,11 +139,25 @@ export const generateMockDream = async (inputText) => {
     // Add minimum delay for UX
     await new Promise(resolve => setTimeout(resolve, 800));
 
-    return {
-      imageUrl: preset.imageUrl,
+    const dreamData = {
+      imageUrl: preset.imageUrl, // 预设图片 URL
       keywords: preset.keywords,
       description: preset.description,
-      inputText
+      inputText,
+      isUserCreated: true,
+      isAIGenerated: false // 标记不是 AI 生成（使用预设图）
     };
+
+    // 保存前检查数量
+    const existingDreams = dreamStorage.getAllDreams();
+    if (existingDreams.length >= 5) {
+      console.log('📦 梦境已达上限，删除最旧的梦境');
+      dreamStorage.deleteOldest();
+    }
+
+    // 保存梦境到 localStorage (使用预设图片)
+    dreamStorage.saveDream(dreamData);
+
+    return dreamData;
   }
 };

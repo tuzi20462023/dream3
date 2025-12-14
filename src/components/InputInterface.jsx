@@ -27,14 +27,71 @@ export default function InputInterface({ appState, setAppState, onDreamGenerated
   const [localDreamData, setLocalDreamData] = useState(null) // Keep local copy for display
   const cardRef = useRef(null)
   const isProcessingRef = useRef(false) // Track processing state synchronously
+  const recognitionRef = useRef(null)
+
+  // Initialize speech recognition
+  const initSpeechRecognition = () => {
+    if (!recognitionRef.current) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
+
+      if (!SpeechRecognition) {
+        console.error('浏览器不支持语音识别')
+        alert('您的浏览器不支持语音识别功能,请使用 Chrome 或 Edge 浏览器')
+        return null
+      }
+
+      const recognition = new SpeechRecognition()
+      recognition.lang = 'zh-CN'
+      recognition.continuous = false
+      recognition.interimResults = false
+
+      recognition.onstart = () => {
+        console.log('🎤 语音识别已启动')
+        setIsRecording(true)
+      }
+
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript
+        console.log('✅ 识别结果:', transcript)
+        setInput(transcript)
+        setIsRecording(false)
+      }
+
+      recognition.onerror = (event) => {
+        console.error('❌ 语音识别错误:', event.error)
+        setIsRecording(false)
+
+        if (event.error === 'no-speech') {
+          alert('未检测到语音,请重试')
+        } else if (event.error === 'not-allowed') {
+          alert('请允许麦克风权限以使用语音输入')
+        }
+      }
+
+      recognition.onend = () => {
+        console.log('🛑 语音识别已结束')
+        setIsRecording(false)
+      }
+
+      recognitionRef.current = recognition
+    }
+
+    return recognitionRef.current
+  }
 
   const handleRecord = () => {
-    setIsRecording(!isRecording)
+    const recognition = initSpeechRecognition()
+    if (!recognition) return
+
     if (!isRecording) {
-      console.log("Recording started...")
+      try {
+        recognition.start()
+      } catch (error) {
+        console.error('启动语音识别失败:', error)
+        setIsRecording(false)
+      }
     } else {
-      console.log("Recording stopped.")
-      setInput("我飞过一座水晶构成的城市，天空中充满了几何形状的极光...")
+      recognition.stop()
     }
   }
 
@@ -184,11 +241,11 @@ export default function InputInterface({ appState, setAppState, onDreamGenerated
             transition={{ duration: 1.5, ease: [0.19, 1, 0.22, 1] }}
           >
             <div className="preview-image-container">
-              <img 
-                src={localDreamData.imageUrl} 
-                alt="Dream visualization" 
-                className="preview-image" 
-                crossOrigin="anonymous" 
+              <img
+                src={localDreamData.imageUrl}
+                alt="Dream visualization"
+                className="preview-image"
+                crossOrigin="anonymous"
               />
               <div className="overlay-gradient"></div>
             </div>
@@ -200,7 +257,7 @@ export default function InputInterface({ appState, setAppState, onDreamGenerated
                 ))}
               </div>
               <p className="analysis-text">{localDreamData.inputText}</p>
-              
+
               <div className="action-buttons">
                 <motion.button
                     className="secondary-btn"

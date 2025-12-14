@@ -1,16 +1,52 @@
 import { Canvas } from '@react-three/fiber'
 import { Leva } from 'leva'
-import { Suspense, useState } from 'react'
+import { Suspense, useState, useEffect } from 'react'
 import Scene from './Scene'
 import InputInterface from './components/InputInterface'
 import GalleryScene from './GalleryScene'
 import BackgroundMusic from './components/BackgroundMusic'
 import { dreams as initialDreams } from './data/dreams'
+import { dreamStorage } from './utils/dreamStorage'
 
 function App() {
   const [appState, setAppState] = useState('input') // input, processing, preview, immersed, gallery
   const [dreamData, setDreamData] = useState(null)
-  const [galleryDreams, setGalleryDreams] = useState(initialDreams)
+  const [galleryDreams, setGalleryDreams] = useState([])
+
+  // 初始化时加载保存的梦境，并用预设梦境补足到 5 个
+  useEffect(() => {
+    const userDreams = dreamStorage.getAllDreams()
+
+    // 转换用户梦境格式
+    const formattedUserDreams = userDreams.map(dream => ({
+      id: dream.id,
+      title: new Date(dream.timestamp).toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' }),
+      date: new Date(dream.timestamp).toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' }),
+      imageUrl: dream.imageUrl, // AI 生成的 base64 或预设 URL
+      description: dream.inputText || dream.description || "无 题 • 梦",
+      keywords: dream.keywords,
+      color: '#ffffff',
+      isUserCreated: dream.isUserCreated,
+      isAIGenerated: dream.isAIGenerated
+    }))
+
+    // 如果用户梦境少于 5 个，用系统预设补足
+    if (formattedUserDreams.length < 5) {
+      const needCount = 5 - formattedUserDreams.length
+      const presetDreams = initialDreams.slice(0, needCount).map(dream => ({
+        ...dream,
+        isUserCreated: false,
+        isAIGenerated: false
+      }))
+
+      console.log(`🎨 用户梦境 ${formattedUserDreams.length} 个，用预设补充 ${needCount} 个`)
+      setGalleryDreams([...formattedUserDreams, ...presetDreams])
+    } else {
+      // 用户梦境已经够 5 个，只显示用户梦境
+      console.log(`✨ 展示 ${formattedUserDreams.length} 个用户梦境`)
+      setGalleryDreams(formattedUserDreams)
+    }
+  }, [])
 
   const handleDreamGenerated = (data) => {
     setDreamData(data)
@@ -20,20 +56,32 @@ function App() {
   const handleEnterDream = () => {
     setAppState('immersed')
 
-    // Add to gallery if we have valid dream data
-    if (dreamData) {
-      const newDream = {
-        id: Date.now(),
-        // 标题只显示日期
-        title: new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' }),
-        date: new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' }),
-        imageUrl: dreamData.imageUrl,
-        // 用户输入保存到 description，点开详情卡片时显示
-        description: dreamData.inputText || "无 题 • 梦",
-        keywords: dreamData.keywords,
-        color: '#ffffff'
-      }
-      setGalleryDreams(prev => [newDream, ...prev])
+    // 重新从 localStorage 加载，确保画廊同步最新梦境
+    const userDreams = dreamStorage.getAllDreams()
+
+    const formattedUserDreams = userDreams.map(dream => ({
+      id: dream.id,
+      title: new Date(dream.timestamp).toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' }),
+      date: new Date(dream.timestamp).toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' }),
+      imageUrl: dream.imageUrl,
+      description: dream.inputText || dream.description || "无 题 • 梦",
+      keywords: dream.keywords,
+      color: '#ffffff',
+      isUserCreated: dream.isUserCreated,
+      isAIGenerated: dream.isAIGenerated
+    }))
+
+    // 如果少于 5 个，用预设补足
+    if (formattedUserDreams.length < 5) {
+      const needCount = 5 - formattedUserDreams.length
+      const presetDreams = initialDreams.slice(0, needCount).map(dream => ({
+        ...dream,
+        isUserCreated: false,
+        isAIGenerated: false
+      }))
+      setGalleryDreams([...formattedUserDreams, ...presetDreams])
+    } else {
+      setGalleryDreams(formattedUserDreams)
     }
   }
 
