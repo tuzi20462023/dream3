@@ -1,27 +1,25 @@
-// Mock data for AI generation - Presets with matching image and description
+// Mock data for AI generation - Presets with matching image and description (所有使用在线图片)
 const DREAM_PRESETS = [
-  // 本地图片预设
   {
-    imageUrl: "/images/1.jpg", // 绿色漩涡与鲸鱼
+    imageUrl: "https://images.unsplash.com/photo-1579547945413-497e1b99dac0?q=80&w=1000&auto=format&fit=crop",
     keywords: ["漩涡", "深海", "回响"],
     description: "我沉入一片翡翠色的海洋，四周是不断旋转的水流。一头巨大的鲸鱼从漩涡中心游过，它的眼睛里倒映着我的倒影。我想跟上它，但身体却越来越轻，像是要融化在这片绿色里。"
   },
   {
-    imageUrl: "/images/2.jpg", // 抽象拼贴画
+    imageUrl: "https://images.unsplash.com/photo-1557672172-298e090bd0f1?q=80&w=1000&auto=format&fit=crop",
     keywords: ["碎片", "星芒", "波动"],
     description: "我走进一个由记忆碎片拼成的房间。左边是黑洞，右边是刺眼的星光，中间悬浮着我认不出的符号。波纹一圈圈荡开，每荡一次，就有一段记忆被抹去。我拼命想抓住什么，却只握到了虚空。"
   },
   {
-    imageUrl: "/images/3.jpg", // 窗户里的人影
+    imageUrl: "https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?q=80&w=1000&auto=format&fit=crop",
     keywords: ["窥视", "蓝夜", "陌生"],
     description: "深蓝色的夜里，我站在窗外看着窗内的自己。那个人穿着我的衣服，有着我的脸，但眼神完全陌生。他似乎也在看我，嘴角有一丝我读不懂的笑意。我想敲窗，手却穿过了玻璃。"
   },
   {
-    imageUrl: "/images/4.jpg", // 草地拖鞋与萤火虫
+    imageUrl: "https://images.unsplash.com/photo-1509114397022-ed747cca3f65?q=80&w=1000&auto=format&fit=crop",
     keywords: ["萤火", "草地", "遗留"],
     description: "我发现自己站在一片发光的草地上，脚边放着一双白色拖鞋。萤火虫从四面八方飞来，它们的光芒温暖却让我想哭。这双鞋是谁的？为什么我觉得它们在等一个永远不会回来的人？"
   },
-  // Unsplash 图片预设
   {
     imageUrl: "https://images.unsplash.com/photo-1464802686167-b939a6910659?q=80&w=1000&auto=format&fit=crop",
     keywords: ["虚空", "星尘", "漂流"],
@@ -49,51 +47,87 @@ const DREAM_PRESETS = [
   }
 ];
 
-export const generateMockDream = async (inputText) => {
-  // Pick random preset instead of random combination
-  const presetIndex = Math.floor(Math.random() * DREAM_PRESETS.length);
-  const preset = DREAM_PRESETS[presetIndex];
-  
-  const imageUrl = preset.imageUrl;
+// Supabase 配置
+const SUPABASE_URL = "https://pcolyjkqfznorelcxkvb.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBjb2x5amtxZnpub3JlbGN4a3ZiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU2ODg4OTAsImV4cCI6MjA4MTI2NDg5MH0.drUwcasIa0tN1p7niQxypUKZt6BgsXHr3RXKWzv_svs";
 
-  // Pre-load image to prevent black screen
-  const loadSuccess = await new Promise((resolve) => {
-    const img = new Image();
-    // 远程图片需要 crossOrigin，本地图片不需要
-    if (imageUrl.startsWith('http')) {
-      img.crossOrigin = 'anonymous';
+export const generateMockDream = async (inputText) => {
+  try {
+    // 调用 Supabase Edge Function 生成 AI 梦境
+    console.log('🌙 调用 AI 生成梦境:', inputText);
+
+    const response = await fetch(
+      `${SUPABASE_URL}/functions/v1/generate-dream`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify({ inputText }),
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Edge Function 错误:', errorText);
+      throw new Error('AI 生成失败');
     }
 
-    let timeout = setTimeout(() => {
-      console.warn('Image load timeout:', imageUrl);
-      resolve(false);
-    }, 5000); // 5 second timeout
+    const data = await response.json();
+    console.log('✨ AI 梦境生成成功:', data);
 
-    img.onload = () => {
-      clearTimeout(timeout);
-      console.log('Image loaded successfully:', imageUrl);
-      resolve(true);
+    // Pre-load image to prevent black screen
+    const loadSuccess = await new Promise((resolve) => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+
+      let timeout = setTimeout(() => {
+        console.warn('Image load timeout:', data.imageUrl);
+        resolve(false);
+      }, 10000); // 10 second timeout for AI generated images
+
+      img.onload = () => {
+        clearTimeout(timeout);
+        console.log('Image loaded successfully:', data.imageUrl);
+        resolve(true);
+      };
+
+      img.onerror = (err) => {
+        clearTimeout(timeout);
+        console.error('Image load error:', data.imageUrl, err);
+        resolve(false);
+      };
+
+      img.src = data.imageUrl;
+    });
+
+    if (!loadSuccess) {
+      throw new Error('图片加载失败');
+    }
+
+    return {
+      imageUrl: data.imageUrl,
+      keywords: data.keywords,
+      description: data.description,
+      inputText: data.inputText
     };
 
-    img.onerror = (err) => {
-      clearTimeout(timeout);
-      console.error('Image load error:', imageUrl, err);
-      resolve(false);
+  } catch (error) {
+    console.error('❌ 生成梦境失败，使用预设:', error);
+
+    // 如果 AI 生成失败，降级到预设图片
+    const presetIndex = Math.floor(Math.random() * DREAM_PRESETS.length);
+    const preset = DREAM_PRESETS[presetIndex];
+
+    // Add minimum delay for UX
+    await new Promise(resolve => setTimeout(resolve, 800));
+
+    return {
+      imageUrl: preset.imageUrl,
+      keywords: preset.keywords,
+      description: preset.description,
+      inputText
     };
-
-    img.src = imageUrl;
-  });
-
-  // If image failed to load, fallback to first preset
-  const finalPreset = loadSuccess ? preset : DREAM_PRESETS[0];
-
-  // Add minimum delay for UX (simulate "processing")
-  await new Promise(resolve => setTimeout(resolve, 800));
-
-  return {
-    imageUrl: finalPreset.imageUrl,
-    keywords: finalPreset.keywords,
-    description: finalPreset.description, // Use description instead of analysis
-    inputText // Keep the original input
-  };
+  }
 };
