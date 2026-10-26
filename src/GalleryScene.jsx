@@ -241,7 +241,7 @@ const GalleryScene = ({ onBack, dreams }) => {
   const [viewMode, setViewMode] = useState('timeline')
   const [charging, setCharging] = useState(false)
   const [analysisKey, setAnalysisKey] = useState(0) // Counter for unique keys - must be state!
-  const activeDreams = dreams || staticDreams
+  const activeDreams = (dreams && dreams.length > 0) ? dreams : staticDreams
   const prismRef = useRef()
 
   const handlePrismClick = () => {
